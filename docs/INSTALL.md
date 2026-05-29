@@ -2,9 +2,9 @@
 
 Choose your installation method based on your workflow.
 
-## Option 1: Local Installation (Recommended for Getting Started)
+## Option 1: Local Installation (Recommended for Now)
 
-Install Harness directly into your project folder. Great for teams, testing, and keeping configs close to the codebase.
+Install Harness directly into your project folder. This is the primary method until global packages are published.
 
 ### Steps
 
@@ -45,52 +45,13 @@ harness orchestrate "Add login page"
 
 ---
 
-## Option 2: Global Installation (For Power Users)
+## Option 2: Global Installation (Coming Soon)
 
-Install Harness system-wide. Works across multiple projects.
+**Status**: Not yet published to npm or PyPI. Will add once CLI is complete.
 
-### Steps
-
-```bash
-# Install via pip
-pip install harness-claude-skills
-
-# Or from source
-git clone https://github.com/chetandasauni25/harness-claude-skills.git
-cd harness-claude-skills
-pip install -e .
-
-# Setup global config
-harness init my-project
-```
-
-### What Gets Created
-
-```
-~/.harness/
-├── config.yaml             (global settings)
-├── cache/                  (analysis cache)
-└── ...
-
-my-project/
-├── .harness-config.yaml    (project overrides)
-└── ...
-```
-
-### Usage
-
-From any directory:
-
-```bash
-harness analyze ./src
-harness orchestrate "Add login page"
-```
-
-### Benefits
-✅ Works across projects  
-✅ Shared cache & config  
-✅ One install, use everywhere  
-✅ CLI available globally  
+We're building the CLI tool first (Phase 1). Once complete, we'll publish:
+- PyPI package: `pip install harness-claude-skills`
+- NPM package: `npm install -g harness-claude-skills`
 
 ---
 

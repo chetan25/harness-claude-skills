@@ -41,7 +41,7 @@ Harness will:
 
 ## Quick Start
 
-### Option 1: Local Install (Try It First)
+### Local Install (Recommended for Now)
 
 ```bash
 cd your-project
@@ -54,14 +54,6 @@ Then:
 ```bash
 # From project root
 harness analyze ./src
-harness orchestrate "Your feature request"
-```
-
-### Option 2: Global Install (After You Love It)
-
-```bash
-pip install harness-claude-skills
-harness init my-project
 harness orchestrate "Your feature request"
 ```
 
@@ -296,7 +288,7 @@ harness-claude-skills/
 
 ## Installation Details
 
-### Local Install (`.harness/` folder)
+### Local Install (`.harness/` folder) - Recommended
 
 ```bash
 cd my-project
@@ -308,18 +300,7 @@ cd .harness && python setup.py --local
 # - .harness/config.yaml       (project config)
 ```
 
-### Global Install (System-wide)
-
-```bash
-pip install harness-claude-skills
-# or: npm install -g harness-claude-skills
-
-harness init my-project
-
-# Creates:
-# - ~/.harness/config.yaml          (global settings)
-# - my-project/.harness-config.yaml (project overrides)
-```
+**Coming Soon:** Global pip/npm packages for system-wide installation.
 
 ---
 

@@ -228,14 +228,15 @@ harness-claude-skills/
 
 ## 🎯 Key Metrics
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| SKILL.md files | 5 | 5 ✅ |
-| Documentation pages | 5+ | 3 ✅ |
-| CLI commands | 6 | 0 📋 |
-| Unit tests | 20+ | 0 📋 |
-| Example projects | 2 | 0 📋 |
-| Dependency graph | ✅ | ⏳ |
+| Metric | Target | Current | Status |
+|--------|--------|---------|--------|
+| SKILL.md files | 5 | 5 ✅ | Complete |
+| Documentation pages | 5+ | 3 ✅ | Complete |
+| Published to registries | npm, PyPI | 0 ⏳ | Coming after Phase 1 |
+| CLI commands | 6 | 0 📋 | Phase 1 |
+| Local install method | ✅ | ✅ | Ready to use |
+| Unit tests | 20+ | 0 📋 | Phase 2+ |
+| Example projects | 2 | 0 📋 | Phase 2+ |
 
 ---
 
