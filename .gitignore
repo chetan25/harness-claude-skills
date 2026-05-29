@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Generated
+.harness/generated/
+.harness/state.json
+.harness/.cache/
+
+# Project-specific configs (not shared)
+.harness-config.yaml
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+.coverage
+coverage/
+htmlcov/
+
+# Temp
+tmp/
+temp/
+*.tmp
