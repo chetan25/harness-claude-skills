@@ -1,0 +1,31 @@
+{
+  "name": "harness-claude-skills",
+  "version": "0.1.0",
+  "description": "Ground Claude Code in your project's patterns & conventions. Reduce hallucination, style drift, and context loss.",
+  "keywords": ["claude", "ai", "code-generation", "hermes", "skills", "context", "automation"],
+  "main": "cli/harness-cli.py",
+  "bin": {
+    "harness": "cli/harness-cli.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chetandasauni25/harness-claude-skills.git"
+  },
+  "author": "Chetan Dasauni",
+  "license": "MIT",
+  "scripts": {
+    "setup": "python setup.py --local",
+    "analyze": "python cli/harness-cli.py analyze",
+    "orchestrate": "python cli/harness-cli.py orchestrate",
+    "test": "python -m pytest tests/",
+    "test:watch": "python -m pytest tests/ --watch"
+  },
+  "dependencies": {
+    "pyyaml": "^6.0",
+    "click": "^8.0"
+  },
+  "devDependencies": {
+    "pytest": "^7.0",
+    "pytest-watch": "^4.2"
+  }
+}
