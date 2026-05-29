@@ -46,9 +46,9 @@ Before Claude Code generates anything, ground it with your project's:
 harness analyze ./src --output .harness/generated
 ```
 
-### Via Hermes Skill
+### Via CLI
 ```bash
-hermes skill harness-codebase-analyzer --scan-root ./src
+harness analyze ./src
 ```
 
 ### Programmatically

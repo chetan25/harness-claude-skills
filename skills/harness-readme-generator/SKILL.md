@@ -26,11 +26,9 @@ Keeps docs in sync with your actual codebase.
 harness readme-generate
 ```
 
-### Via Hermes Skill
+### Via CLI
 ```bash
-hermes skill harness-readme-generator \
-  --project-root ./src \
-  --output ./README-harness.md
+harness readme-generate
 ```
 
 ### Programmatically

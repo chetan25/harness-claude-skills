@@ -27,11 +27,9 @@ style, and conventions.
 
 ## Usage
 
-### Via Hermes Skill
+### Via CLI
 ```bash
-hermes skill harness-context-loader \
-  --task "Add user authentication modal" \
-  --project-root ./src
+harness context "Add user authentication modal"
 ```
 
 ### Programmatically

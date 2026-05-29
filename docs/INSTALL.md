@@ -22,7 +22,7 @@ your-project/
 ├── .harness/
 │   ├── config/
 │   │   └── default.yaml
-│   ├── generated/          (auto-generated skills & diagrams)
+│   ├── generated/          (auto-generated context & diagrams)
 │   └── journal.md          (execution log)
 ├── .harness-config.yaml    (gitignored, project-specific)
 └── ...
@@ -75,8 +75,6 @@ harness init my-project
 my-project/
 ├── .harness-config.yaml    (project overrides)
 └── ...
-
-~/.hermes/skills/harness-*/ (installed skills)
 ```
 
 ### Usage
@@ -95,20 +93,6 @@ harness orchestrate "Add login page"
 ✅ CLI available globally  
 
 ---
-
-## Hermes Integration
-
-Harness uses Hermes skills. Make sure Hermes Agent is installed:
-
-```bash
-hermes --version
-```
-
-If not installed:
-```bash
-pip install hermes-agent
-hermes setup
-```
 
 ---
 
@@ -140,14 +124,6 @@ pip install --upgrade harness-claude-skills
 ### "No such file or directory: .harness/config"
 
 Run `python setup.py --local` from project root.
-
-### "Hermes skill not found"
-
-Make sure Hermes is installed and configured:
-```bash
-hermes config show
-hermes tools list harness-*
-```
 
 ---
 

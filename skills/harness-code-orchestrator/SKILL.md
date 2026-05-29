@@ -37,12 +37,9 @@ For each task:
 harness orchestrate "Add user authentication with email/password"
 ```
 
-### Via Hermes Skill + Delegation
+### Via CLI
 ```bash
-hermes skill harness-code-orchestrator \
-  --requirement "Add user authentication with email/password" \
-  --project-root ./src \
-  --parallel-limit 2
+harness orchestrate "Add user authentication with email/password" --project-root ./src
 ```
 
 ### Programmatically

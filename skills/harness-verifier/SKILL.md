@@ -25,7 +25,7 @@ Verify generated code meets quality standards:
 harness verify ./src/components/LoginModal
 ```
 
-### Via Hermes Skill
+### Via CLI
 ```bash
 hermes skill harness-verifier \
   --path ./src/components/LoginModal \

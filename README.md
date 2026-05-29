@@ -17,7 +17,7 @@ Claude Code is powerful but struggles with:
 
 ## The Solution
 
-**Harness** is a system of Hermes skills that:
+**Harness** is a system of skills that:
 
 1. **Scan** your codebase (structure, patterns, tests, design tokens)
 2. **Ground** Claude with explicit context (mermaid diagrams, pattern examples)
@@ -84,7 +84,7 @@ After `harness analyze ./src`:
     └── dependency-graph.mermaid
 ```
 
-These become **Hermes skills** that Claude uses as context.
+These become **grounding context** that Claude Code uses for better output.
 
 ---
 
@@ -94,11 +94,11 @@ These become **Hermes skills** that Claude uses as context.
 Scans your project, generates grounding materials.
 
 ```bash
-hermes skill harness-codebase-analyzer --scan-root ./src
+harness analyze ./src
 ```
 
 **Outputs:**
-- Pattern skills (React, TypeScript, testing)
+- Pattern guides (React, TypeScript, testing)
 - Architecture diagrams (mermaid)
 - Design token extractions
 
@@ -108,9 +108,7 @@ hermes skill harness-codebase-analyzer --scan-root ./src
 Builds AI-ready context prompts from analysis.
 
 ```bash
-hermes skill harness-context-loader \
-  --task "Add user authentication" \
-  --include patterns,design-tokens,test-examples
+harness context "Add user authentication" --include patterns,design-tokens,test-examples
 ```
 
 **Outputs:** Injection prompts ready for Claude Code
@@ -121,9 +119,7 @@ hermes skill harness-context-loader \
 The main loop: decompose → think → create → verify → test → next.
 
 ```bash
-hermes skill harness-code-orchestrator \
-  --requirement "Add authentication" \
-  --parallel-limit 2
+harness orchestrate "Add authentication" --parallel-limit 2
 ```
 
 **Outputs:** Generated code, tests, execution journal
@@ -134,7 +130,7 @@ hermes skill harness-code-orchestrator \
 Lint, type-check, test after generation.
 
 ```bash
-hermes skill harness-verifier ./generated-code
+harness verify ./generated-code
 ```
 
 **Checks:**
@@ -149,7 +145,7 @@ hermes skill harness-verifier ./generated-code
 Auto-updates project README with context links.
 
 ```bash
-hermes skill harness-readme-generator
+harness readme-generate
 ```
 
 ---
@@ -282,7 +278,7 @@ harness orchestrate "Add JWT authentication middleware"
 
 ```
 harness-claude-skills/
-├── skills/                          # Hermes skills
+├── skills/                          # Skills & context generators
 │   ├── harness-codebase-analyzer/
 │   ├── harness-context-loader/
 │   ├── harness-code-orchestrator/   # Main loop
@@ -308,9 +304,8 @@ git clone https://github.com/chetandasauni25/harness-claude-skills.git .harness
 cd .harness && python setup.py --local
 
 # Creates:
-# - .harness/generated/        (project-specific skills)
+# - .harness/generated/        (project-specific context)
 # - .harness/config.yaml       (project config)
-# - ~/.hermes/skills/harness-* (symlinks)
 ```
 
 ### Global Install (System-wide)
@@ -323,7 +318,6 @@ harness init my-project
 
 # Creates:
 # - ~/.harness/config.yaml          (global settings)
-# - ~/.hermes/skills/harness-*      (installed globally)
 # - my-project/.harness-config.yaml (project overrides)
 ```
 
