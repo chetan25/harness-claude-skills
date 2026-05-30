@@ -25,15 +25,29 @@ This creates:
 
 ### Step 2: Make `harness` Command Available
 
-Add to your `.bashrc`, `.zshrc`, or shell config:
+**Option A: Add to PATH (Recommended)**
 
 ```bash
-export PATH="$PATH:$(pwd)/.harness/cli"
+export PATH="$(pwd)/.harness/cli:$PATH"
+harness --help
 ```
 
-Or use it directly:
+Add to `.bashrc` or `.zshrc` to make it permanent:
 ```bash
-python .harness/cli/harness-cli.py
+export PATH="/full/path/to/your/project/.harness/cli:$PATH"
+```
+
+**Option B: Use Directly**
+
+```bash
+./.harness/cli/harness --help
+./.harness/cli/harness analyze ./src
+```
+
+**Option C: Create an Alias**
+
+```bash
+alias harness='python3 $(pwd)/.harness/cli/harness-cli.py'
 ```
 
 ---
@@ -87,6 +101,9 @@ This checks:
 ## Full Example: Add Dark Mode
 
 ```bash
+# Add to PATH first (one time)
+export PATH="$(pwd)/.harness/cli:$PATH"
+
 # 1. Analyze project (do this once)
 harness analyze ./src
 
@@ -265,15 +282,19 @@ Add to your project's README:
 
 ### "harness: command not found"
 
-**Solution 1:** Use full path
+**Solution 1:** Add to PATH
 ```bash
-python .harness/cli/harness-cli.py analyze ./src
+export PATH="$(pwd)/.harness/cli:$PATH"
 ```
 
-**Solution 2:** Add to PATH
+**Solution 2:** Use the wrapper script directly
 ```bash
-export PATH="$PATH:$(pwd)/.harness/cli"
-harness analyze ./src
+./.harness/cli/harness analyze ./src
+```
+
+**Solution 3:** Use Python directly
+```bash
+python3 ./.harness/cli/harness-cli.py analyze ./src
 ```
 
 ### ".harness/generated/ is empty"
