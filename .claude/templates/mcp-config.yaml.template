@@ -1,0 +1,76 @@
+# MCP Configuration Template
+
+## Overview
+Model Context Protocol (MCP) configuration for Claude Code skills integration.
+
+## Server Configuration
+```yaml
+server:
+  name: {SKILL_NAME}
+  version: "1.0.0"
+  description: "{SKILL_DESCRIPTION}"
+```
+
+## Resources
+```yaml
+resources:
+  - uri: "skill:///{SKILL_NAME}/config"
+    name: "Configuration"
+    mimeType: "application/json"
+    
+  - uri: "skill:///{SKILL_NAME}/state"
+    name: "State"
+    mimeType: "application/json"
+```
+
+## Tools
+```yaml
+tools:
+  - name: {TOOL_NAME}
+    description: "{TOOL_DESCRIPTION}"
+    inputSchema:
+      type: "object"
+      properties:
+        {PARAMETERS}
+      required: [{REQUIRED_PARAMS}]
+      
+  - name: {TOOL_NAME_2}
+    description: "{TOOL_DESCRIPTION_2}"
+    inputSchema:
+      type: "object"
+      properties:
+        {PARAMETERS_2}
+      required: [{REQUIRED_PARAMS_2}]
+```
+
+## Prompts
+```yaml
+prompts:
+  - name: "{PROMPT_NAME}"
+    description: "{PROMPT_DESCRIPTION}"
+    arguments:
+      - name: "{ARGUMENT}"
+        description: "{ARGUMENT_DESCRIPTION}"
+```
+
+## Environment Variables
+```yaml
+env:
+  LOG_LEVEL: "info"
+  DEBUG: "false"
+  {CUSTOM_VAR}: "{CUSTOM_VALUE}"
+```
+
+## Capabilities
+```yaml
+capabilities:
+  resources: true
+  tools: true
+  sampling: true
+```
+
+## Connection Settings
+```yaml
+transport:
+  type: "stdio"  # or "sse", "ws"
+```

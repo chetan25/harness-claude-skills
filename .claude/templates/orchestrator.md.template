@@ -1,0 +1,55 @@
+# Orchestrator Skill Definition
+
+## Overview
+This template defines the structure of an orchestrator skill that coordinates other skills.
+
+## Core Responsibilities
+- Coordinate skill execution order
+- Manage state between skills
+- Handle error recovery and fallbacks
+- Track execution metrics
+
+## Input Schema
+```yaml
+{
+  "task": "string - what to orchestrate",
+  "params": "object - parameters for sub-skills",
+  "config": "object - orchestration configuration"
+}
+```
+
+## Output Schema
+```yaml
+{
+  "status": "success|error|partial",
+  "results": "object - aggregated results from all skills",
+  "execution_trace": "array - trace of skill execution",
+  "metrics": "object - timing and performance data"
+}
+```
+
+## Sub-Skills to Coordinate
+- {SKILL_1}
+- {SKILL_2}
+- {SKILL_3}
+
+## Execution Flow
+```
+[Start] → [Skill A] → [Skill B] → [Skill C] → [Aggregation] → [End]
+```
+
+## Error Handling
+```
+{ERROR_HANDLING_STRATEGY}
+```
+
+## State Management
+- Use context-loader for persistent state
+- Pass state as explicit parameters between skills
+- Log state transitions for debugging
+
+## Integration Notes
+- Receives tasks from Claude Code environment
+- Returns results to Claude Code for user presentation
+- Uses context-loader for shared memory
+- Validates with verifier before presenting results

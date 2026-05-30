@@ -1,0 +1,99 @@
+# Domain Skill Template
+
+## Skill Structure
+```
+harness-{domain-name}/
+├── README.md                 # Skill documentation
+├── skill.md                  # Claude Code skill definition
+├── mcp-config.yaml          # MCP configuration
+├── {domain_name}_skill.py    # Main implementation
+├── tests/
+│   ├── __init__.py
+│   └── test_{domain_name}_skill.py
+└── examples/
+    └── example_usage.py
+```
+
+## Minimal Skill Implementation
+```python
+"""
+Domain Skill: {DOMAIN_NAME}
+Description: {DESCRIPTION}
+"""
+
+class {DomainNameSkill}:
+    """Core skill implementation."""
+    
+    def __init__(self):
+        self.name = "{domain-name}"
+        self.version = "1.0.0"
+    
+    def execute(self, **kwargs):
+        """
+        Main execution method.
+        
+        Args:
+            **kwargs: Skill-specific parameters
+            
+        Returns:
+            dict: Results including status and data
+        """
+        try:
+            # Implementation here
+            result = self._process(kwargs)
+            return {
+                "status": "success",
+                "data": result,
+                "metadata": {"skill": self.name, "version": self.version}
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "metadata": {"skill": self.name}
+            }
+    
+    def _process(self, params):
+        """Process the input parameters."""
+        # Add your domain-specific logic here
+        pass
+```
+
+## Naming Conventions
+- Skill class: `{DomainName}Skill` (PascalCase)
+- Skill file: `{domain_name}_skill.py` (snake_case)
+- Folder: `harness-{domain-name}` (kebab-case)
+
+## Required Methods
+- `__init__()`: Initialize skill
+- `execute(**kwargs)`: Main execution point
+- Any domain-specific helper methods
+
+## Testing Template
+```python
+import unittest
+from {domain_name}_skill import {DomainNameSkill}
+
+class Test{DomainNameSkill}(unittest.TestCase):
+    def setUp(self):
+        self.skill = {DomainNameSkill}()
+    
+    def test_execute_success(self):
+        result = self.skill.execute(test_param="value")
+        self.assertEqual(result["status"], "success")
+    
+    def test_execute_error(self):
+        result = self.skill.execute(invalid_param=None)
+        # Handle error case
+```
+
+## Integration Checklist
+- [ ] Skill implements `execute()` method
+- [ ] Returns proper status/data structure
+- [ ] Error handling in place
+- [ ] Unit tests written
+- [ ] Documentation complete
+- [ ] MCP config defined
+- [ ] Examples provided
+- [ ] Compatible with context-loader
+- [ ] Validates with verifier
