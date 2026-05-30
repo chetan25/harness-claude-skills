@@ -2,97 +2,129 @@
 
 ## What Is This?
 
-A system of 5 Hermes skills that ground Claude Code in your project's patterns and conventions.
+A system of 5 skills that ground Claude Code in your project's patterns and conventions.
 
 **Problem**: Claude Code loses context, generates inconsistent code, doesn't match your design  
 **Solution**: Analyze your project → inject context → verify output
 
-## Try It Locally
+---
+
+## Installation (2 Minutes)
+
+### Clone Harness into Your Project
 
 ```bash
-cd /tmp/harness-claude-skills
-
-# Read the overview
-cat README.md
-
-# Understand the design
-cat docs/ARCHITECTURE.md
-
-# Check the roadmap
-cat PROJECT_STATUS.md
+cd your-project
+git clone https://github.com/chetan25/harness-claude-skills.git .harness
+cd .harness && python setup.py --local
+cd ..
 ```
 
-## File Guide
-
-| File | Purpose |
-|------|---------|
-| `README.md` | Feature overview, quick start |
-| `docs/ARCHITECTURE.md` | Deep dive on design & components |
-| `docs/INSTALL.md` | Installation instructions |
-| `PROJECT_STATUS.md` | Roadmap for Phases 1-5 |
-| `skills/*/SKILL.md` | Individual skill documentation |
-
-## Next Steps
-
-**Option A: Push to GitHub**
-```bash
-# Tell me your GitHub username & desired repo name
-# I'll create the repo and push for you
-```
-
-**Option B: Build Phase 1 (CLI Tool)**
-```bash
-# Implement harness-cli.py with commands:
-# - harness analyze ./src
-# - harness orchestrate "Feature request"
-# - harness context "Description"
-# - harness verify ./output
-# - harness test ./output.test.ts
-```
-
-**Option C: Build Phase 2 (Analyzer)**
-```bash
-# Implement codebase scanning:
-# - Language detection
-# - AST parsing
-# - Pattern extraction
-# - Dependency graphs
-# - Mermaid diagrams
-```
-
-## The 5 Skills
-
-1. **harness-codebase-analyzer** — Scan → Extract patterns → Generate diagrams
-2. **harness-context-loader** — Load patterns → Build AI-ready prompts
-3. **harness-code-orchestrator** — Main loop (decompose → think → create → verify → test)
-4. **harness-verifier** — Lint, type-check, test, validate
-5. **harness-readme-generator** — Auto-update docs
-
-See `skills/*/SKILL.md` for details on each.
-
-## Git
+### Make Command Available (Optional)
 
 ```bash
-# Current state
-git log --oneline
-# 6278de2 docs: add project status and implementation roadmap
-# ebe488d chore: initial harness-claude-skills repo
-
-# View files
-git ls-files
-
-# Add to GitHub
-git remote add origin https://github.com/<username>/<repo>.git
-git push -u origin master
+export PATH="$PATH:$(pwd)/.harness/cli"
 ```
-
-## Questions?
-
-- **Architecture?** → See `docs/ARCHITECTURE.md`
-- **Installation?** → See `docs/INSTALL.md`
-- **Roadmap?** → See `PROJECT_STATUS.md`
-- **How do I contribute?** → Pick Phase 1-5, follow the tasks in `PROJECT_STATUS.md`
 
 ---
 
-**Ready?** Let me know your next move!
+## Your First Task
+
+### 1. Analyze Your Project
+
+```bash
+harness analyze ./src
+```
+
+Generates context files in `.harness/generated/`
+
+### 2. Ask Claude for Context
+
+```bash
+harness context "Add user authentication modal"
+```
+
+Copy the output into Claude Code.
+
+### 3. Verify Generated Code
+
+```bash
+harness verify ./src/components/LoginModal
+```
+
+Checks: lint, types, tests, coverage.
+
+---
+
+## Full Workflow Example
+
+```bash
+# 1. Analyze (once per project)
+harness analyze ./src
+
+# 2. Get context for a feature
+harness context "Add dark mode toggle with persistence"
+
+# 3. In Claude Code:
+#    - Paste the context from step 2
+#    - Ask: "Add dark mode toggle with persistence"
+#    - Claude generates code
+
+# 4. Verify
+harness verify ./src/features/DarkMode
+
+# 5. Commit
+git add . && git commit -m "feat: add dark mode"
+```
+
+---
+
+## Commands
+
+```bash
+harness analyze ./src                    # Scan project once
+harness context "Feature description"    # Get prompt injection
+harness orchestrate "Feature"            # Full automated workflow
+harness verify ./generated-code          # Lint + type + test
+harness status                           # Show project state
+harness journal                          # View execution log
+```
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| **[USAGE_GUIDE.md](./USAGE_GUIDE.md)** | Complete how-to guide (READ THIS FIRST) |
+| **[INSTALL.md](./INSTALL.md)** | Installation troubleshooting |
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | How Harness works (deep dive) |
+| **[../README.md](../README.md)** | Feature overview |
+| **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** | Roadmap for Phases 1-5 |
+
+---
+
+## Next Steps
+
+**→ [Read USAGE_GUIDE.md](./USAGE_GUIDE.md) for the full guide**
+
+Or jump to:
+- **[Installation Issues?](./INSTALL.md)** 
+- **[How Does It Work?](./ARCHITECTURE.md)**
+- **[Roadmap & Phases](../PROJECT_STATUS.md)**
+
+---
+
+## The 5 Skills
+
+1. **harness-codebase-analyzer** — Scans your project, extracts patterns
+2. **harness-context-loader** — Builds AI-ready prompt injections
+3. **harness-code-orchestrator** — Automates the full workflow
+4. **harness-verifier** — Validates generated code (lint, type, test)
+5. **harness-readme-generator** — Auto-generates documentation
+
+See `skills/*/SKILL.md` for details.
+
+---
+
+**Questions?** Open an issue on GitHub or check the docs above.
