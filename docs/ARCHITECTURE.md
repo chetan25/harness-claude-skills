@@ -2,51 +2,144 @@
 
 ## Overview
 
-Harness is a system of five Hermes skills that work together to ground Claude Code in your project's patterns, style, and conventions.
+**Harness** is a three-layer AI dev orchestration system:
 
+1. **Skill Builder** — Auto-generate project-specific skills (with Mermaid diagrams)
+2. **Harness Context** — Inject skills into Claude's understanding
+3. **Orchestrator** — 7-phase multi-layer workflow coordinator
+
+```mermaid
+graph TB
+    User["👤 User Input<br/>Add dark mode feature"]
+    
+    Builder["🔨 SKILL BUILDER<br/>Auto-generate skills if missing"]
+    Analyze["📊 Analyze Project<br/>Patterns + Architecture"]
+    Mermaid["📐 Generate Diagrams<br/>Component tree, data flow, structure"]
+    Patterns["📋 Extract Patterns<br/>Code conventions, testing, API"]
+    
+    Skills["📚 Generated Skills<br/>.harness/skills/"]
+    
+    Harness["⚡ HARNESS CONTEXT<br/>Inject into Claude prompt"]
+    Cached["💾 Cached Skills<br/>Patterns + Diagrams + Examples"]
+    
+    Orchestrator["🎭 ORCHESTRATOR<br/>7-phase multi-layer workflow"]
+    Phase1["1️⃣  Analyze Problem"]
+    Phase2["2️⃣  Load Context"]
+    Phase3["3️⃣  Generate Code"]
+    Phase4["4️⃣  Verify UI"]
+    Phase5["5️⃣  Write Tests"]
+    Phase6["6️⃣  Re-Verify"]
+    Phase7["7️⃣  Completion"]
+    
+    Claude["🤖 Claude Code<br/>Multi-agent team"]
+    Verify["✅ Verify<br/>Lint/Types/Tests/Design"]
+    Result["📦 Complete Feature<br/>Ready to ship"]
+    
+    User -->|trigger| Builder
+    Builder -->|scan| Analyze
+    Analyze -->|extract| Mermaid
+    Analyze -->|extract| Patterns
+    Mermaid -->|generate| Skills
+    Patterns -->|generate| Skills
+    
+    Skills -->|load| Harness
+    Harness -->|cache| Cached
+    Cached -->|inject| Claude
+    
+    User -->|orchestrate| Orchestrator
+    Orchestrator -->|phase 1| Phase1
+    Phase1 -->|phase 2| Phase2
+    Phase2 -->|phase 3| Phase3
+    Phase3 -->|phase 4| Phase4
+    Phase4 -->|phase 5| Phase5
+    Phase5 -->|phase 6| Phase6
+    Phase6 -->|phase 7| Phase7
+    
+    Phase2 -->|uses| Cached
+    Phase3 -->|executes| Claude
+    Claude -->|output| Verify
+    Verify -->|result| Result
+    
+    style User fill:#e1f5ff,stroke:#01579b,color:#000
+    style Builder fill:#f3e5f5,stroke:#4a148c,color:#000
+    style Harness fill:#e8f5e9,stroke:#1b5e20,color:#000
+    style Orchestrator fill:#fff3e0,stroke:#e65100,color:#000
+    style Claude fill:#fce4ec,stroke:#880e4f,color:#000
+    style Result fill:#c8e6c9,stroke:#2e7d32,color:#000
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   User Requirement                          │
-│                "Add user authentication"                    │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-     ┌───────────────▼─────────────────┐
-     │ harness-code-orchestrator       │
-     │ (Main Loop)                     │
-     └───────┬───────────┬─────────────┘
-             │           │
-             │   ┌───────▼──────────────────┐
-             │   │ harness-codebase-analyzer│
-             │   │ Scan project             │
-             │   │ Generate patterns        │
-             │   └────────┬─────────────────┘
-             │            │
-             │   ┌────────▼────────────────────┐
-             │   │ .harness/generated/        │
-             │   │ - patterns-react.md        │
-             │   │ - arch-components.md       │
-             │   │ - design-tokens.md         │
-             │   └────────┬────────────────────┘
-             │            │
-             │    ┌───────▼──────────────────┐
-             │    │ harness-context-loader   │
-             │    │ Build context injection  │
-             │    └────────┬─────────────────┘
-             │             │
-             └──────┬──────┴────────────────────┐
-                    │                           │
-            ┌───────▼─────────┐    ┌──────────▼──────┐
-            │ Claude Code     │    │ harness-verifier│
-            │ Generate        │    │ Lint/Type/Test  │
-            │ code            │    │ Verify output   │
-            └───────┬─────────┘    └──────────┬──────┘
-                    │                         │
-                    └────────┬────────────────┘
-                             │
-                    ┌────────▼────────┐
-                    │ Commit to disk  │
-                    │ Update journal  │
-                    └─────────────────┘
+
+---
+
+## Layer 1: Skill Builder
+
+**Purpose:** Auto-detect and generate project-specific skills
+
+**Process:**
+
+```mermaid
+graph LR
+    A["📁 Scan Project"]
+    B["🔍 Extract Structure"]
+    C["📝 Find Patterns"]
+    D["📐 Generate Diagrams"]
+    E["📚 Create Skills"]
+    
+    A -->|discover| B
+    B -->|analyze| C
+    C -->|visualize| D
+    D & C -->|compile| E
+    
+    style A fill:#fff9c4
+    style D fill:#fff59d,stroke:#f57f17,stroke-width:2px
+    style E fill:#c8e6c9
+```
+
+**Output: Skill Files with Diagrams**
+
+```markdown
+# React Components Skill
+
+## Architecture
+
+\`\`\`mermaid
+graph TB
+    App["App.jsx"]
+    Layout["Layout"]
+    Header["Header"]
+    Navigation["Navigation"]
+    Main["Main"]
+    Footer["Footer"]
+    
+    App --> Layout
+    Layout --> Header
+    Layout --> Main
+    Layout --> Footer
+    Header --> Navigation
+    
+    style App fill:#bbdefb
+    style Layout fill:#c8e6c9
+    style Header fill:#fff9c4
+    style Navigation fill:#ffccbc
+\`\`\`
+
+## Data Flow
+
+\`\`\`mermaid
+graph LR
+    State["React State"]
+    Props["Props"]
+    Component["Component"]
+    JSX["Render"]
+    
+    State --> Component
+    Props --> Component
+    Component -->|render| JSX
+\`\`\`
+
+## Patterns
+- Functional components with hooks
+- Context API for global state
+- ...
 ```
 
 ## Component Details
