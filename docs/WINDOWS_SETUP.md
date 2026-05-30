@@ -27,29 +27,83 @@ nano ~/.bashrc
 At the end of the file, add:
 
 ```bash
+# Harness Claude Skills
 alias harness='python3 /d/Programming/harness-claude-skills/cli/harness-cli.py'
 ```
 
 **Save:** Ctrl+O → Enter → Ctrl+X
 
-### Step 3: Reload
+### Step 3: Reload This Session
 
 ```bash
 source ~/.bashrc
 ```
 
-### Step 4: Test
+### Step 4: Test in a NEW Git Bash Window
+
+Close Git Bash completely, then open a fresh window and try:
 
 ```bash
 harness --help
-harness analyze ./src
 ```
 
-Now you can use `harness` just like any other command! ✅
+If it works, the alias is now persistent! ✅
+
+### Step 5: Verify It's Permanent
+
+In any Git Bash window (now or later), check:
+
+```bash
+cat ~/.bashrc | grep harness
+```
+
+Should show your alias line.
+
+## Understanding Persistence
+
+**One-Time Alias (This Session Only):**
+
+```bash
+alias harness='python3 /d/Programming/harness-claude-skills/cli/harness-cli.py'
+```
+
+This works **only in this Git Bash window**. If you close it or open a new one, the alias disappears.
+
+**Permanent Alias (All Sessions):**
+
+Add the same line to `~/.bashrc`. Now it loads automatically every time you open Git Bash.
 
 ---
 
-## Solution 3: Windows Batch File (Advanced)
+## File Locations on Windows
+
+Your config files live in your **home directory**. Find it:
+
+```bash
+# Show home directory
+echo $HOME
+
+# List config files
+ls -la ~/ | grep bash
+```
+
+Common locations:
+- `C:\Users\YourUsername\.bashrc`
+- `C:\Users\YourUsername\.bash_profile`
+- Or use: `~/.bashrc` in Git Bash (it resolves automatically)
+
+---
+
+## Multiple Config Files?
+
+Git Bash reads config files in this order:
+
+1. `~/.bash_profile` (if exists)
+2. `~/.bashrc` (if exists)
+
+**Best practice:** Add your alias to `~/.bashrc` — it's loaded by both login and non-login shells.
+
+---
 
 If you want to use Command Prompt (cmd.exe) or PowerShell instead of Git Bash:
 
