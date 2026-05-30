@@ -13,28 +13,56 @@ Claude Code is powerful but struggles with:
 - **Context decay**: Each invocation starts fresh
 - **Style drift**: Generated code doesn't match existing patterns
 - **Hallucination**: Wrong APIs, missing types, inconsistent conventions
-- **No verification**: Code ships without linting, testing, type-checking
+- **Multi-step coordination**: No guidance for complex features
+- **No verification**: Code ships without design/lint/test validation
 
 ## The Solution
 
-**Harness** is a system of skills that:
+**Harness** is an AI dev team coordinator with three layers:
 
-1. **Scan** your codebase (structure, patterns, tests, design tokens)
-2. **Ground** Claude with explicit context (mermaid diagrams, pattern examples)
-3. **Orchestrate** multi-task workflows with verification loops
-4. **Verify** generated code (lint → type-check → test → ship)
+### 1. **Skill Builder** (Auto-Generate if Missing)
+Scans your project and auto-generates skills:
+- React/Vue/Angular patterns
+- TypeScript conventions
+- Test framework patterns
+- Design tokens & color systems
+- API integration examples
+
+### 2. **Harness Context** (Ground Claude)
+Injects generated skills into Claude's context:
+- Claude now understands YOUR conventions
+- Fewer hallucinations
+- Consistent code style
+
+### 3. **Orchestrator** (Multi-Layer Process)
+Coordinates Claude agents through 7 phases:
+
+```
+User: "Add dark mode toggle"
+    ↓
+[1] Problem Analysis: Break into subtasks
+[2] Context Loading: Gather skills + Figma design
+[3] Code Generation: Multi-agent team writes code
+[4] Visual Verification: Verify in UI + against Figma
+[5] Testing: Write/run tests
+[6] Re-Verification: Final lint/type/design checks
+[7] Completion: Ship when ready
+```
 
 ### Example: Add User Authentication
 
-```bash
-harness orchestrate "Add user authentication with email/password"
+```
+@harness orchestrate "Add user authentication with email/password"
 ```
 
 Harness will:
-- ✅ Break down into tasks (hook, form components, routes, tests)
-- ✅ Load context (your React patterns, auth APIs, design tokens)
-- ✅ Generate each component (Claude Code with grounding)
-- ✅ Verify (ESLint, TypeScript, tests)
+- ✅ Analyze the task (hook + form + routes + tests)
+- ✅ Load skills (React patterns, auth APIs, test examples)
+- ✅ Spawn sub-agents for each component
+- ✅ Verify each piece matches your conventions
+- ✅ Verify UI against Figma design (if provided)
+- ✅ Run full test suite
+- ✅ Check lint/types
 - ✅ Ship with confidence
 
 ---
