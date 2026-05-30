@@ -1,11 +1,8 @@
 # Harness Claude Skills
 
-🎯 **Make Claude Code smarter.** Ground AI code generation in your project's patterns, architecture, and conventions. Reduce context loss, style drift, and hallucination.
+**AI Dev Team Coordinator** — Orchestrate Claude to build complete features with verification, testing, and design compliance.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Status](https://img.shields.io/badge/Status-Alpha-orange)
-
----
+Instead of asking Claude to "add dark mode," you ask Harness to orchestrate it. Harness coordinates sub-agents, verifies everything (code, UI, tests, lint/types, design), and ships when ready.
 
 ## The Problem
 
@@ -69,381 +66,148 @@ Harness will:
 
 ## Quick Start
 
-### Local Install (Recommended for Now)
+### 1. Clone into Your Project
 
 ```bash
 cd your-project
-git clone https://github.com/chetandasauni25/harness-claude-skills.git .harness
-cd .harness
-python setup.py --local
+git clone https://github.com/chetan25/harness-claude-skills.git .harness
 ```
 
-Then:
-```bash
-# From project root
-harness analyze ./src
-harness orchestrate "Your feature request"
+### 2. Use in Claude Code
+
 ```
+@harness orchestrate "Add dark mode toggle"
+```
+
+Claude auto-detects `.harness/` and runs the full workflow.
 
 ---
 
-## What Gets Generated
+## Documentation
 
-After `harness analyze ./src`:
+- **[Getting Started](docs/GETTING_STARTED.md)** — 2-minute setup, first command
+- **[Claude Commands](docs/CLAUDE_COMMANDS.md)** — All available commands & examples
+- **[Architecture](docs/ARCHITECTURE.md)** — How it works, deep dive with Mermaid diagrams
+- **[Usage Guide](docs/USAGE_GUIDE.md)** — Full workflow, advanced tips
+- **[Installation](docs/INSTALL.md)** — Detailed setup for all platforms
+
+---
+
+## How It Works
+
+**Behind the scenes:**
 
 ```
-.harness/generated/
-├── harness-patterns-react.md          # Your code style guide
-├── harness-patterns-typescript.md     # Type conventions
-├── harness-arch-components.md         # Component architecture
-├── harness-design-tokens.md           # Colors, spacing, typography
-├── harness-test-patterns.md           # How tests are organized
-├── harness-api-auth.md                # API contracts
-└── diagrams/
-    ├── architecture.mermaid
-    └── dependency-graph.mermaid
+Claude Code IDE
+    ↓
+@harness command triggered
+    ↓
+Auto-detect `.harness/` folder
+    ↓
+Analyze project (first time) or load cache
+    ↓
+Generate Mermaid diagrams for architecture
+    ↓
+Extract code patterns & conventions
+    ↓
+Inject everything into Claude's system prompt
+    ↓
+Claude executes (fully grounded)
+    ↓
+Coordinate sub-agents for each subtask
+    ↓
+Verify code + UI + tests + lint/types + design
+    ↓
+Ship when everything passes
 ```
-
-These become **grounding context** that Claude Code uses for better output.
 
 ---
 
 ## Skills Included
 
-### 1. **harness-codebase-analyzer**
-Scans your project, generates grounding materials.
+Harness includes 5 core skills that work together:
 
-```bash
-harness analyze ./src
-```
-
-**Outputs:**
-- Pattern guides (React, TypeScript, testing)
-- Architecture diagrams (mermaid)
-- Design token extractions
-
----
-
-### 2. **harness-context-loader**
-Builds AI-ready context prompts from analysis.
-
-```bash
-harness context "Add user authentication" --include patterns,design-tokens,test-examples
-```
-
-**Outputs:** Injection prompts ready for Claude Code
-
----
-
-### 3. **harness-code-orchestrator**
-The main loop: decompose → think → create → verify → test → next.
-
-```bash
-harness orchestrate "Add authentication" --parallel-limit 2
-```
-
-**Outputs:** Generated code, tests, execution journal
-
----
-
-### 4. **harness-verifier**
-Lint, type-check, test after generation.
-
-```bash
-harness verify ./generated-code
-```
-
-**Checks:**
-- ESLint / Prettier
-- TypeScript / mypy
-- Test execution
-- Coverage thresholds
-
----
-
-### 5. **harness-readme-generator**
-Auto-updates project README with context links.
-
-```bash
-harness readme-generate
-```
-
----
-
-## Workflow
-
-### Manual (Step by Step)
-
-```bash
-# 1. Analyze codebase once
-harness analyze ./src
-
-# 2. Start a task with context
-harness context-loader "Add login modal"
-# → Returns prompt injection
-
-# 3. Paste into Claude Code with injection
-# → Claude generates code
-
-# 4. Verify result
-harness verify ./src/components/LoginModal
-
-# 5. Write tests
-harness test ./src/components/LoginModal.test.tsx
-
-# 6. Commit
-git add .
-```
-
-### Automated (Full Harness)
-
-```bash
-# One command: decompose, generate, verify, test, commit
-harness orchestrate "Add login modal with email/password"
-
-# Check execution log
-cat .harness/journal.md
-```
-
----
-
-## Configuration
-
-Create `.harness/config.yaml`:
-
-```yaml
-harness:
-  project_root: ./src
-  project_name: my-app
-  
-analyzer:
-  scan_depth: 5
-  exclude:
-    - node_modules
-    - dist
-    - .git
-  
-  targets:
-    - patterns
-    - architecture
-    - design-tokens
-    - test-structure
-
-orchestrator:
-  decompose_strategy: claude  # or: rules, hybrid
-  parallel_limit: 2
-  
-  phases:
-    think:
-      enabled: true
-    create:
-      enabled: true
-      max_retries: 3
-    verify:
-      enabled: true
-      fail_on_error: true
-    test:
-      enabled: true
-      coverage_min: 70
-
-verifier:
-  checks:
-    - lint
-    - type-check
-    - test
-  
-  lint_config: .eslintrc.json
-  test_runner: jest
-```
-
----
-
-## Examples
-
-### React App with TypeScript
-
-```bash
-cd examples/react-app
-harness analyze ./src
-
-# Try it
-harness orchestrate "Add dark mode toggle with persistence"
-```
-
-### Node Backend
-
-```bash
-cd examples/node-backend
-harness analyze ./src
-
-# Try it
-harness orchestrate "Add JWT authentication middleware"
-```
-
----
-
-## Pitfalls & Solutions
-
-| Problem | Solution |
-|---------|----------|
-| **"Code doesn't match my style"** | Run `harness analyze` to refresh patterns |
-| **"Tests keep failing"** | Check `.harness/journal.md`, increase `max_retries` |
-| **"It's too slow"** | Exclude `node_modules`, set `parallel_limit: 3` |
-| **"Wrong context loaded"** | Manually specify context with `--include patterns,api` |
-| **"Coverage dropped"** | Set `coverage_min: 80`, block commit on failure |
+1. **harness-codebase-analyzer** — Scans your project, extracts patterns, generates Mermaid diagrams
+2. **harness-context-loader** — Builds AI-ready context prompts from analysis
+3. **harness-code-orchestrator** — Coordinates multi-agent workflow (7 phases)
+4. **harness-verifier** — Lint, type-check, test verification
+5. **harness-readme-generator** — Keeps documentation in sync
 
 ---
 
 ## Project Structure
 
 ```
-harness-claude-skills/
-├── skills/                          # Skills & context generators
+.harness/
+├── skills/                          # 5 core skill definitions
 │   ├── harness-codebase-analyzer/
 │   ├── harness-context-loader/
-│   ├── harness-code-orchestrator/   # Main loop
+│   ├── harness-code-orchestrator/
 │   ├── harness-verifier/
 │   └── harness-readme-generator/
-├── cli/                             # Command-line tool
-│   ├── harness-cli.py               # Entry point
-│   └── commands/
-├── docs/                            # Deep documentation
-├── examples/                        # Example projects
-└── tests/                           # Test suite
+│
+├── generated/                       # Auto-generated on first run
+│   ├── patterns.json               # Extracted code patterns
+│   ├── architecture.md             # Component structure
+│   ├── diagrams.mermaid            # Visual architecture
+│   ├── design-tokens.json          # Colors, spacing, etc.
+│   ├── cache.json                  # Analysis metadata
+│   └── skills-summary.md
+│
+├── config.yaml                      # Project config (generated)
+├── cli/
+│   ├── harness-cli.py              # Legacy fallback (CLI)
+│   └── ... 
+└── docs/
+    ├── ARCHITECTURE.md
+    ├── CLAUDE_COMMANDS.md
+    ├── GETTING_STARTED.md
+    └── ...
 ```
 
 ---
 
-## Installation Details
+## What Gets Cached
 
-### Local Install (`.harness/` folder) - Recommended
+After first analysis, Harness caches:
 
-```bash
-cd my-project
-git clone https://github.com/chetandasauni25/harness-claude-skills.git .harness
-cd .harness && python setup.py --local
-
-# Creates:
-# - .harness/generated/        (project-specific context)
-# - .harness/config.yaml       (project config)
+```
+.harness/generated/
+├── patterns.json              # React/TypeScript/testing patterns
+├── architecture.md            # Component relationships
+├── diagrams.mermaid           # Mermaid diagrams for architecture
+├── design-tokens.json         # Colors, spacing, typography
+├── cache.json                 # Metadata & timestamps
+└── skills-summary.md          # What was detected
 ```
 
-**Coming Soon:** Global pip/npm packages for system-wide installation.
-
----
-
-## Commands Reference
-
-```bash
-# Analysis
-harness analyze ./src                    # Scan project, generate skills
-harness analyze ./src --output custom/   # Custom output directory
-
-# Context
-harness context "Add auth" --include patterns,design-tokens
-harness context "Add modal" --auto-select                     # Auto-pick context
-
-# Orchestration
-harness orchestrate "Add user auth"      # Full harness loop
-harness think "Add user auth"            # Decompose only (no code gen)
-
-# Verification
-harness verify ./generated                # Lint, type-check, test
-harness test ./generated.test.ts          # Run tests
-
-# Status & Logs
-harness status                           # Show project state
-harness journal                          # View execution log
-harness journal --last 5                 # Last 5 entries
-
-# Configuration
-harness config show                      # Print current config
-harness config set orchestrator.parallel_limit 4
-```
-
----
-
-## For Teams
-
-### Share in Your Repo
-
-```bash
-# In project root
-git add .harness/
-git commit -m "chore: add harness skills for AI-assisted development"
-git push
-```
-
-### Teammates Install
-
-```bash
-git clone <your-repo>
-cd <your-repo>
-.harness/setup.sh --local
-
-# Now they can run:
-harness orchestrate "Feature request"
-```
-
----
-
-## Documentation
-
-- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — Deep dive into design
-- **[INSTALL.md](./docs/INSTALL.md)** — Installation details
-- **[INTEGRATION.md](./docs/INTEGRATION.md)** — Integration with CI/CD
-- **[EXAMPLES.md](./docs/EXAMPLES.md)** — Real use cases
-- **[FAQ.md](./docs/FAQ.md)** — Common questions
-
----
-
-## Development
-
-```bash
-# Clone this repo
-git clone https://github.com/chetandasauni25/harness-claude-skills.git
-cd harness-claude-skills
-
-# Run tests
-python -m pytest tests/
-
-# Try example projects
-cd examples/react-app
-../../cli/harness-cli.py orchestrate "Add feature"
-```
-
----
-
-## Contributing
-
-Issues, PRs, and ideas welcome! This is alpha — we're iterating fast.
+Cache automatically updates when you edit code. Clear with `@harness cache refresh`.
 
 ---
 
 ## Project Status
 
 **Phase 0: Foundation** ✅ COMPLETE
-- ✅ Documentation (README, guides, architecture)
-- ✅ CLI structure (command recognition)
-- ✅ Skill specifications
-- ✅ Setup for all platforms (macOS, Linux, Windows)
+- ✅ Architecture designed
+- ✅ Documentation with Mermaid diagrams
+- ✅ 5 skills defined and documented
+- ✅ Claude Command structure ready
+- ✅ Installation tested
 
-**Phase 1: CLI Implementation** ⏳ IN PROGRESS
-- ❌ `harness analyze` — Scan repo, generate patterns
-- ❌ `harness context` — Build prompt injections
-- ❌ `harness orchestrate` — Run full workflow
-- ❌ `harness verify` — Lint, type-check, test
-- ❌ `harness test` — Run tests
+**Phase 1: Implementation** ⏳ IN PROGRESS
+- Skill Builder (analyze + diagram generation)
+- Claude Command integration
+- Cache management
+- Orchestrator (7-phase workflow)
+- Verification engine
 
-**What Works Now:**
-- ✅ `harness --help` shows all commands
-- ✅ Full documentation and guides
-- ✅ CLI structure ready for implementation
+See [PROJECT_STATUS.md](PROJECT_STATUS.md) for timeline and details.
 
-**What Returns "Not Implemented":**
-- Running any command (Phase 1 in progress)
+---
 
-See [PROJECT_STATUS.md](PROJECT_STATUS.md) for the detailed roadmap and implementation timeline.
+## Contributing
+
+Issues, PRs, and ideas welcome! This is alpha — we're iterating fast.
 
 ---
 
@@ -459,4 +223,4 @@ Teams who ❤️ Claude + want AI that understands **their** code.
 
 ---
 
-**Questions?** Open an issue or check [FAQ.md](./docs/FAQ.md).
+**Get started:** [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
