@@ -392,6 +392,33 @@ Issues, PRs, and ideas welcome! This is alpha — we're iterating fast.
 
 ---
 
+## Project Status
+
+**Phase 0: Foundation** ✅ COMPLETE
+- ✅ Documentation (README, guides, architecture)
+- ✅ CLI structure (command recognition)
+- ✅ Skill specifications
+- ✅ Setup for all platforms (macOS, Linux, Windows)
+
+**Phase 1: CLI Implementation** ⏳ IN PROGRESS
+- ❌ `harness analyze` — Scan repo, generate patterns
+- ❌ `harness context` — Build prompt injections
+- ❌ `harness orchestrate` — Run full workflow
+- ❌ `harness verify` — Lint, type-check, test
+- ❌ `harness test` — Run tests
+
+**What Works Now:**
+- ✅ `harness --help` shows all commands
+- ✅ Full documentation and guides
+- ✅ CLI structure ready for implementation
+
+**What Returns "Not Implemented":**
+- Running any command (Phase 1 in progress)
+
+See [PROJECT_STATUS.md](PROJECT_STATUS.md) for the detailed roadmap and implementation timeline.
+
+---
+
 ## License
 
 MIT — Use it, modify it, share it.
