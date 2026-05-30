@@ -10,18 +10,22 @@ You want to use Claude Code to build features in your project, but Claude needs 
 
 ### Step 1: Clone Harness into Your Project
 
+**Recommended (as hidden folder):**
 ```bash
 cd your-project
 git clone https://github.com/chetan25/harness-claude-skills.git .harness
-cd .harness
-python setup.py --local
+cd .harness && python setup.py --local
 cd ..
 ```
 
-This creates:
-- `.harness/` — The Harness installation
-- `.harness/generated/` — Project-specific context files (auto-generated)
-- `.harness/config/default.yaml` — Configuration
+**Alternative (keep repo name):**
+```bash
+cd your-project
+git clone https://github.com/chetan25/harness-claude-skills.git
+# Creates: your-project/harness-claude-skills/
+```
+
+If you use the alternative, adjust the PATH in Step 2 to include `harness-claude-skills`.
 
 ### Step 2: Make `harness` Command Available
 

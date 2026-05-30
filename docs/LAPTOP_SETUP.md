@@ -2,57 +2,92 @@
 
 If you cloned `.harness` on your **laptop** (not in a container), follow these steps.
 
-## Step 1: Verify Files
+## Step 1: How Did You Clone It?
 
-Open Terminal and run:
+**Option A: Clone as `.harness` (Recommended)**
 
 ```bash
+git clone https://github.com/chetan25/harness-claude-skills.git .harness
+```
+
+Creates: `~/D/.harness/cli/`
+
+**Option B: Clone with Repo Name**
+
+```bash
+git clone https://github.com/chetan25/harness-claude-skills.git
+```
+
+Creates: `~/D/harness-claude-skills/cli/`
+
+---
+
+## Step 2: Verify Files
+
+Based on your clone method:
+
+**If you did Option A (`.harness`):**
+```bash
 ls -la ~/D/.harness/cli/
+```
+
+**If you did Option B (`harness-claude-skills`):**
+```bash
+ls -la ~/D/harness-claude-skills/cli/
 ```
 
 Look for:
 - `harness` ✅
 - `harness-cli.py` ✅
 
-**If you see them:** Skip to Step 3  
-**If you DON'T see them:** Do Step 2
+**If you DON'T see them:** Skip to Step 3
 
-## Step 2: Update Your Clone
+## Step 3: Update Your Clone
 
 ```bash
-cd ~/D/.harness
-git pull origin main
-cd ..
+# If you have .harness:
+cd ~/D/.harness && git pull origin main && cd ..
+
+# If you have harness-claude-skills:
+cd ~/D/harness-claude-skills && git pull origin main && cd ..
 ```
 
-This downloads the latest CLI files from GitHub.
+## Step 4: Add to PATH
 
-## Step 3: Add to PATH
+**Important:** Use the correct path for YOUR clone!
 
-**Temporary** (this session only):
-
+**If you have `.harness`:**
 ```bash
 export PATH="~/D/.harness/cli:$PATH"
 ```
 
-**Permanent** (all future sessions):
+**If you have `harness-claude-skills`:**
+```bash
+export PATH="~/D/harness-claude-skills/cli:$PATH"
+```
+
+**To make it permanent:**
 
 **For macOS/Linux with bash:**
 ```bash
+# If .harness:
 echo 'export PATH="~/D/.harness/cli:$PATH"' >> ~/.bashrc
+
+# If harness-claude-skills:
+echo 'export PATH="~/D/harness-claude-skills/cli:$PATH"' >> ~/.bashrc
+
 source ~/.bashrc
 ```
 
 **For macOS/Linux with zsh:**
 ```bash
+# If .harness:
 echo 'export PATH="~/D/.harness/cli:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
 
-**For Windows (PowerShell):**
-```powershell
-# Add to Windows System Environment Variables or run:
-$env:Path += ";C:\Users\YourName\D\.harness\cli"
+# If harness-claude-skills:
+echo 'export PATH="~/D/harness-claude-skills/cli:$PATH"' >> ~/.zshrc
+
+source ~/.zshrc
 ```
 
 ## Step 4: Test

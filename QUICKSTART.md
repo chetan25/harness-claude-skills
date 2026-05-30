@@ -11,7 +11,7 @@ A system of 5 skills that ground Claude Code in your project's patterns and conv
 
 ## Installation (2 Minutes)
 
-### Clone Harness into Your Project
+### Option 1: Clone as `.harness` (Recommended)
 
 ```bash
 cd your-project
@@ -20,7 +20,25 @@ cd .harness && python setup.py --local
 cd ..
 ```
 
-### Make Command Available (Optional)
+### Option 2: Clone with Repo Name
+
+```bash
+cd your-project
+git clone https://github.com/chetan25/harness-claude-skills.git
+# Creates: harness-claude-skills/
+```
+
+Then adjust PATH:
+```bash
+export PATH="$(pwd)/harness-claude-skills/cli:$PATH"
+```
+
+Instead of:
+```bash
+export PATH="$(pwd)/.harness/cli:$PATH"
+```
+
+### Step 2: Make Command Available (Choose Your Method)
 
 ```bash
 export PATH="$PATH:$(pwd)/.harness/cli"
