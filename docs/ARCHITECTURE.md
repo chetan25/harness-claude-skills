@@ -2,521 +2,188 @@
 
 ## Overview
 
-**Harness** is a three-layer AI dev orchestration system:
+Harness is **four Claude Code skills** that work together. Each is a `SKILL.md` of instructions Claude executes with its own tools (`Glob`, `Grep`, `Read`, `Write`, `Bash`, `Agent`). There is no external program, CLI, or runtime — **Claude is the harness**.
 
-1. **Skill Builder** — Auto-generate project-specific skills (with Mermaid diagrams)
-2. **Harness Context** — Inject skills into Claude's understanding
-3. **Orchestrator** — 7-phase multi-layer workflow coordinator
+The skills form three roles:
+
+1. **Ground** — `harness-analyzer` learns the project, **generates `project-*` grounding skills** (with standalone diagram files) under `.claude/skills/`, writes a relevance index, and wires `CLAUDE.md`.
+2. **Focus** — `harness-context-loader` turns those generated skills + diagrams into a per-loop context packet, selecting only what the current task needs.
+3. **Drive & check** — `harness-orchestrator` runs the build loop from resumable state; `harness-verifier` gates each step.
 
 ```mermaid
 graph TB
-    User["👤 User Input<br/>Add dark mode feature"]
-    
-    Builder["🔨 SKILL BUILDER<br/>Auto-generate skills if missing"]
-    Analyze["📊 Analyze Project<br/>Patterns + Architecture"]
-    Mermaid["📐 Generate Diagrams<br/>Component tree, data flow, structure"]
-    Patterns["📋 Extract Patterns<br/>Code conventions, testing, API"]
-    
-    Skills["📚 Generated Skills<br/>.harness/skills/"]
-    
-    Harness["⚡ HARNESS CONTEXT<br/>Inject into Claude prompt"]
-    Cached["💾 Cached Skills<br/>Patterns + Diagrams + Examples"]
-    
-    Orchestrator["🎭 ORCHESTRATOR<br/>7-phase multi-layer workflow"]
-    Phase1["1️⃣  Analyze Problem"]
-    Phase2["2️⃣  Load Context"]
-    Phase3["3️⃣  Generate Code"]
-    Phase4["4️⃣  Verify UI"]
-    Phase5["5️⃣  Write Tests"]
-    Phase6["6️⃣  Re-Verify"]
-    Phase7["7️⃣  Completion"]
-    
-    Claude["🤖 Claude Code<br/>Multi-agent team"]
-    Verify["✅ Verify<br/>Lint/Types/Tests/Design"]
-    Result["📦 Complete Feature<br/>Ready to ship"]
-    
-    User -->|trigger| Builder
-    Builder -->|scan| Analyze
-    Analyze -->|extract| Mermaid
-    Analyze -->|extract| Patterns
-    Mermaid -->|generate| Skills
-    Patterns -->|generate| Skills
-    
-    Skills -->|load| Harness
-    Harness -->|cache| Cached
-    Cached -->|inject| Claude
-    
-    User -->|orchestrate| Orchestrator
-    Orchestrator -->|phase 1| Phase1
-    Phase1 -->|phase 2| Phase2
-    Phase2 -->|phase 3| Phase3
-    Phase3 -->|phase 4| Phase4
-    Phase4 -->|phase 5| Phase5
-    Phase5 -->|phase 6| Phase6
-    Phase6 -->|phase 7| Phase7
-    
-    Phase2 -->|uses| Cached
-    Phase3 -->|executes| Claude
-    Claude -->|output| Verify
-    Verify -->|result| Result
-    
+    User["👤 User: 'Add dark mode' (no ceremony)"]
+
+    CLAUDE["📄 CLAUDE.md<br/>routes feature requests → the flow"]
+
+    Orchestrator["🎭 harness-orchestrator<br/>decompose + run the loop"]
+    Analyzer["📊 harness-analyzer<br/>scan project → generate skills + diagrams + wire CLAUDE.md"]
+    Generated["📁 .claude/skills/project-*<br/>patterns · architecture · tests · tokens<br/>+ diagrams/*.mmd (real skills, auto-loaded)"]
+    Index["🗂️ .claude/skills/project-index.md<br/>relevance map: area → skills + diagrams"]
+    State["📒 .claude/harness/state.md<br/>resumable loop state: task list + done-so-far"]
+
+    Loader["🧭 harness-context-loader<br/>per-loop context packet (selective loading)"]
+    Verifier["✅ harness-verifier<br/>run project's real lint/types/format/tests + diagrams check"]
+
+    Result["📦 Verified, tested feature"]
+
+    User --> CLAUDE
+    CLAUDE --> Orchestrator
+    Orchestrator -->|"if grounding missing/stale"| Analyzer
+    Analyzer -->|generates| Generated
+    Analyzer -->|writes| Index
+    Analyzer -->|wires| CLAUDE
+    Orchestrator -->|"owns"| State
+    Orchestrator -->|"per task: ground"| Loader
+    Loader -->|"reads state + index"| State
+    Loader -->|"selects relevant skills + diagrams"| Generated
+    Loader -->|consults| Index
+    Loader -->|context packet + criteria| Orchestrator
+    Orchestrator -->|"build → verify"| Verifier
+    Verifier -->|"checks against"| Generated
+    Verifier -->|"green"| Result
+    Verifier -->|"red → fix + retry"| Orchestrator
+
     style User fill:#e1f5ff,stroke:#01579b,color:#000
-    style Builder fill:#f3e5f5,stroke:#4a148c,color:#000
-    style Harness fill:#e8f5e9,stroke:#1b5e20,color:#000
+    style CLAUDE fill:#ede7f6,stroke:#311b92,color:#000
+    style Analyzer fill:#f3e5f5,stroke:#4a148c,color:#000
+    style Generated fill:#f1f8e9,stroke:#33691e,color:#000
+    style Index fill:#e0f2f1,stroke:#004d40,color:#000
+    style State fill:#fff8e1,stroke:#ff6f00,color:#000
+    style Loader fill:#e8f5e9,stroke:#1b5e20,color:#000
     style Orchestrator fill:#fff3e0,stroke:#e65100,color:#000
-    style Claude fill:#fce4ec,stroke:#880e4f,color:#000
+    style Verifier fill:#fce4ec,stroke:#880e4f,color:#000
     style Result fill:#c8e6c9,stroke:#2e7d32,color:#000
 ```
 
----
-
-## Layer 1: Skill Builder
-
-**Purpose:** Auto-detect and generate project-specific skills
-
-**Process:**
-
-```mermaid
-graph LR
-    A["📁 Scan Project"]
-    B["🔍 Extract Structure"]
-    C["📝 Find Patterns"]
-    D["📐 Generate Diagrams"]
-    E["📚 Create Skills"]
-    
-    A -->|discover| B
-    B -->|analyze| C
-    C -->|visualize| D
-    D & C -->|compile| E
-    
-    style A fill:#fff9c4
-    style D fill:#fff59d,stroke:#f57f17,stroke-width:2px
-    style E fill:#c8e6c9
-```
-
-**Output: Skill Files with Diagrams**
-
-```markdown
-# React Components Skill
-
-## Architecture
-
-\`\`\`mermaid
-graph TB
-    App["App.jsx"]
-    Layout["Layout"]
-    Header["Header"]
-    Navigation["Navigation"]
-    Main["Main"]
-    Footer["Footer"]
-    
-    App --> Layout
-    Layout --> Header
-    Layout --> Main
-    Layout --> Footer
-    Header --> Navigation
-    
-    style App fill:#bbdefb
-    style Layout fill:#c8e6c9
-    style Header fill:#fff9c4
-    style Navigation fill:#ffccbc
-\`\`\`
-
-## Data Flow
-
-\`\`\`mermaid
-graph LR
-    State["React State"]
-    Props["Props"]
-    Component["Component"]
-    JSX["Render"]
-    
-    State --> Component
-    Props --> Component
-    Component -->|render| JSX
-\`\`\`
-
-## Patterns
-- Functional components with hooks
-- Context API for global state
-- ...
-```
-
-## Component Details
-
-### 1. harness-codebase-analyzer
-
-**Purpose**: Scan your project and extract patterns
-
-**Inputs**:
-- Project root directory
-- Configuration (languages, depth, targets)
-
-**Outputs**:
-- `.harness/generated/harness-patterns-{lang}.md` — Code conventions
-- `.harness/generated/harness-arch-{domain}.md` — Component structure
-- `.harness/generated/harness-design-tokens.md` — UI tokens
-- `.harness/generated/harness-test-patterns.md` — Testing approach
-- `.harness/generated/diagrams/*.mermaid` — Architecture diagrams
-
-**Technology**:
-- Python AST parsing for language detection
-- Dependency graph analysis
-- Pattern extraction via regex + heuristics
+The key move: the analyzer's output is **real skills with frontmatter**, so Claude auto-loads them — and the `CLAUDE.md` it wires routes the *next* feature request through the loop without the user asking. The harness becomes self-governing.
 
 ---
+
+## The skills
+
+### 1. harness-analyzer
+
+**Role:** learn the project, generate grounding skills + diagram files, write the relevance index, wire `CLAUDE.md`.
+
+**Does:** detects the stack from real manifests; maps the architecture as standalone Mermaid diagram files; extracts naming/import/structure patterns from representative files; captures test conventions; captures design tokens for UI projects. Everything is evidence-based — anything it can't determine is written as "unknown", not invented.
+
+**Generates real skills under `.claude/skills/`** (each a `SKILL.md` with `name` + `description` frontmatter, so Claude auto-loads them):
+- `project-patterns-{lang}/SKILL.md`
+- `project-architecture/SKILL.md`
+- `project-test-patterns/SKILL.md`
+- `project-design-tokens/SKILL.md` (UI only)
+
+**Generates standalone diagram files** under each grounding skill's `diagrams/` folder, which the `project-*` skills **reference by path** instead of embedding inline Mermaid:
+- `project-architecture/diagrams/components.mmd` — module/dependency graph
+- `project-architecture/diagrams/data-flow.mmd` — the canonical request/data happy-path
+- `project-patterns-{lang}/diagrams/layers.mmd` — allowed-dependency / layering rules
+- `project-patterns-{lang}/diagrams/idiom-*.mmd` — zero or more recurring idioms
+
+**Also generates `.claude/skills/project-index.md`** — a relevance index: a table mapping area → which `project-*` skills + diagrams to load for a task. This powers selective loading, so each loop pulls only what a task needs.
+
+**Also wires `CLAUDE.md`** at the project root: summarizes the project, lists the generated `project-*` skills and what each governs, and instructs that non-trivial feature requests run through `harness-orchestrator`. If a `CLAUDE.md` exists, it merges rather than clobbering.
 
 ### 2. harness-context-loader
 
-**Purpose**: Transform generated patterns into AI-ready context
+**Role:** focus the grounding for one task, every loop.
 
-**Inputs**:
-- Task/requirement description
-- Generated patterns from analyzer
-- Configuration (what context to include)
+**Does:** ensures grounding exists (runs the analyzer first if not); reads `.claude/harness/state.md` (for the current task and what's done so far) and `.claude/skills/project-index.md` (to map the task's area → the relevant skills + diagrams); via **selective loading** it pulls only those skills and diagram files — not every generated skill — and emits a compact, ephemeral **context packet**: a short user-ask summary, done-so-far, the current task, the exact context to use (patterns, the relevant diagrams, design tokens if UI, test expectation), and a checklist of acceptance criteria. The packet is rebuilt each loop so context stays precise; it is what the build runs against and what the verifier checks the result against.
 
-**Outputs**:
-- Context injection prompt (markdown)
-- Relevant examples & code snippets
-- Mermaid diagrams
+It stays a **separate skill** with a single clear responsibility — turning auto-loaded grounding into a *task-specific* context packet — rather than folding that into the orchestrator.
 
-**Example Output**:
+### 3. harness-orchestrator
+
+**Role:** drive the build.
+
+**Does:** decomposes the requirement into the smallest independently-verifiable tasks, ordered by dependency, tracked with a todo list (`TodoWrite`). It **initializes and maintains `.claude/harness/state.md`** — the resumable run state it owns: a short user-ask summary, the task list with status markers (`[ ]` pending, `[>]` in progress, `[x]` done), and a rolling "done so far" log. The state file survives compaction and restarts, so the orchestrator can resume the loop from it rather than starting over. For each task it runs the loop:
+
 ```
-PROJECT: my-app (React + TypeScript)
-TASK: Add user authentication modal
-
-ARCHITECTURE:
-[mermaid diagram]
-
-CODE PATTERNS (React):
-- Components: PascalCase (AuthModal.tsx)
-- Hooks: useXxx pattern (useAuth.ts)
-- Imports: Absolute paths (@/components)
-
-DESIGN TOKENS:
-- Primary color: #1976d2
-- Spacing: 8px base unit
-
-TEST PATTERN:
-[Jest + React Testing Library example]
-
-ACCEPTANCE CRITERIA:
-✓ Component in src/components/AuthModal/
-✓ Follows naming patterns
-✓ Uses design tokens
-✓ >80% test coverage
+ground  → harness-context-loader builds the context packet + acceptance criteria
+plan    → state the approach + files to touch
+build   → implement, following project patterns
+verify  → harness-verifier; fix on red, re-verify
+test    → add + run tests until green
 ```
 
-**Technology**:
-- Template-based prompt building
-- Context selection logic (auto-detect relevant patterns)
-- Token counting (to fit within context windows)
-
----
-
-### 3. harness-code-orchestrator
-
-**Purpose**: Coordinate the full workflow
-
-**Inputs**:
-- User requirement ("Add user authentication")
-- Project configuration
-- Max retry/parallel limits
-
-**Process**:
-
-1. **DECOMPOSE**: Break requirement into tasks
-   - Uses Claude to understand scope
-   - Creates task list with dependencies
-
-2. **FOR EACH TASK**:
-   - **THINK**: Load context, plan approach
-   - **CREATE**: Delegate to Claude Code with context injection
-   - **VERIFY**: Run linter, type-check, style check
-   - **TEST**: Write and run tests
-   - **COMMIT**: Write files to disk
-
-3. **COORDINATE**:
-   - Serial: Execute tasks in dependency order
-   - Parallel: Run independent tasks concurrently (respecting limit)
-   - Error handling: Retry or explain errors to Claude
-
-**Outputs**:
-- Generated code files
-- Generated test files
-- `.harness/journal.md` — Execution log
-- `.harness/state.json` — Task state (for recovery)
-
-**Technology**:
-- Task graph analysis (dependency ordering)
-- Process orchestration (serial/parallel scheduling)
-- State machine for task phases (think → create → verify → test → commit)
-
----
+As tasks move through the loop it updates their markers in `state.md` and appends to the done-so-far log. A task is complete only when verify and test both pass. Independent tasks may run in parallel via dispatched subagents (`Agent`); dependent tasks run serially.
 
 ### 4. harness-verifier
 
-**Purpose**: Ensure generated code meets quality standards
+**Role:** the quality gate.
 
-**Inputs**:
-- Generated code files
-- Verification configuration (checks to run)
-
-**Checks**:
-- **Lint**: ESLint, Pylint, etc. (catches code errors)
-- **Type-check**: TypeScript, mypy (catches type errors)
-- **Style**: Prettier, Black (enforces formatting)
-- **Test**: Jest, pytest (runs tests)
-- **Coverage**: Checks coverage % meets threshold
-- **Patterns**: Validates against learned patterns
-
-**Outputs**:
-- Verification report (pass/fail per check)
-- Error messages (if any)
-- Coverage metrics
-
-**On Failure**:
-- Returns errors to orchestrator
-- Orchestrator explains to Claude + regenerates
-- Retry loop until passing or max_retries
-
-**Technology**:
-- Tool invokers (ESLint API, TypeScript compiler, etc.)
-- Coverage analysis
-- Pattern matching (regex, AST analysis)
+**Does:** discovers the project's real commands (from `package.json` scripts, `pyproject.toml`, `Makefile`, CI config) — never assumed — runs lint / type-check / format-check / tests, and checks the changed files for naming/import/location conformance against the `project-patterns-*` skill. It additionally runs a **`diagrams` gate**: it checks the change respects the diagrams it was grounded on — the layering / allowed-dependency rules in `layers.mmd` and the canonical `data-flow.mmd`. Reports each gate as pass / fail / not-configured **with the real output**, then drives fixes until green. It never claims a gate passed without running it, and doesn't paper over failures by loosening configs or skipping tests.
 
 ---
 
-### 5. harness-readme-generator
-
-**Purpose**: Auto-document the project with harness context
-
-**Inputs**:
-- Generated patterns & architecture
-- Project metadata
-- Generator configuration
-
-**Outputs**:
-- Auto-generated README section
-- Links to `.harness/generated/` context files
-- How-to for using harness
-- Architecture overview
-
-**Technology**:
-- Markdown templating
-- File generation
-
----
-
-## Data Flow
+## Data & flow
 
 ```
-Project Root
-  ├── analyzer scans
-  │   └─► .harness/generated/
-  │       ├── harness-patterns-*.md
-  │       ├── harness-arch-*.md
-  │       ├── harness-design-tokens.md
-  │       ├── harness-test-patterns.md
-  │       └── diagrams/
+Project root
   │
-  ├── context-loader reads generated
-  │   └─► context injection prompts
+  ├── harness-analyzer scans
+  │     ├─► .claude/skills/project-{patterns, architecture, test-patterns, design-tokens}/SKILL.md
+  │     │        (real skills — committable, auto-loaded by Claude)
+  │     ├─► .claude/skills/project-*/diagrams/*.mmd
+  │     │        (components, data-flow, layers, idiom-* — referenced by the skills)
+  │     ├─► .claude/skills/project-index.md   (relevance map: area → skills + diagrams)
+  │     └─► CLAUDE.md   (wired so feature requests follow the flow)
   │
-  ├── orchestrator decomposes requirement
-  │   └─► task list
-  │
-  ├── for each task:
-  │   ├── context-loader builds prompt
-  │   ├── Claude Code generates
-  │   ├── verifier checks
-  │   ├── (if fails: regenerate)
-  │   └── commit to disk
-  │
-  └─► final code + tests + journal
+  └── feature request → CLAUDE.md routes it → harness-orchestrator
+        ├── decompose requirement → ordered task list
+        ├── write/maintain .claude/harness/state.md  (resumable: tasks + done-so-far)
+        └── for each task:
+              ├── harness-context-loader reads state.md + project-index.md
+              │     └── selects relevant project-* skills + diagrams → context packet + criteria
+              ├── build the change against the packet
+              ├── harness-verifier runs the project's real gates + pattern check + diagrams check
+              │     └── on failure: read errors, fix, re-verify
+              └── add + run tests until green
+        └─► verified code + tests
 ```
 
----
-
-## Error Handling & Recovery
-
-### Verification Failures
-
-```python
-if verification_fails:
-    # Collect errors
-    errors = verifier.get_errors()
-    
-    # Explain to Claude
-    context = f"""
-Previous code failed verification:
-{errors.summary()}
-
-Issues:
-{errors.explanation()}
-
-Please fix and regenerate.
-"""
-    
-    # Regenerate with error context
-    new_code = claude_code.generate(
-        task=task,
-        context=context,
-        previous_attempt=code
-    )
-    
-    # Retry verification
-    if verifies(new_code):
-        commit(new_code)
-    else if retries < max_retries:
-        retry()
-    else:
-        fail_with_explanation()
-```
-
-### Dependency Management
-
-```python
-# Build task dependency graph
-graph = build_dependency_graph(tasks)
-
-# Topological sort for serial execution
-if not parallel:
-    tasks = topological_sort(graph)
-    execute_serial(tasks)
-else:
-    # Execute independent tasks in parallel
-    for batch in parallel_batches(graph, parallel_limit):
-        execute_parallel(batch)
-```
+Grounding still lives as skills plus their referenced diagram files under `.claude/skills/` — there is no separate grounding data folder. The only run-state file is the small, auto-managed `.claude/harness/state.md` the orchestrator owns for resumability.
 
 ---
 
-## Configuration Precedence
+## Design decisions
 
-1. **CLI args** (highest priority)
-   ```bash
-   harness orchestrate --parallel-limit 4 --max-retries 5
-   ```
+**Why skills instead of a CLI/program?**
+In Claude Code, the skill *is* the executable unit. Claude already has the tools to scan, write, run commands, and dispatch agents — wrapping that in an external program would add a runtime to install and maintain for no benefit. Keeping everything as `SKILL.md` means zero install, and it works wherever Claude Code runs.
 
-2. **Project config** `.harness/config.yaml`
-   ```yaml
-   orchestrator:
-     parallel_limit: 2
-     max_retries: 3
-   ```
+**Why generate skills + wire `CLAUDE.md` instead of a data folder?**
+The earlier model wrote grounding to a data folder a loader had to be told to read. Generating real `SKILL.md` files instead means Claude **auto-loads** the grounding by description, and wiring `CLAUDE.md` means the *next* feature request routes through the loop on its own. The harness becomes self-governing — the user just asks for features, with no ceremony. The generated skills are normal committable files, so a team shares the same grounding.
 
-3. **Global config** `~/.harness/config.yaml`
-   ```yaml
-   orchestrator:
-     parallel_limit: 1
-   ```
+**Why run the project's own commands?**
+Assuming `eslint`/`pytest`/etc. is how style drift and false "passing" claims creep in. Reading the project's real scripts means the verifier checks what the project actually enforces — and reports "not configured" honestly when a gate is absent.
 
-4. **Defaults** (lowest priority)
+**Why standalone diagram files?**
+Mermaid is text-based, diffable, and versionable, and renders in Markdown/GitHub — but keeping the diagrams as standalone `.mmd` files (rather than inline in a skill) lets the `project-*` skills **reference** them selectively per task and load them only when relevant, keeping the grounding accurate and reviewable without bloating every context with diagrams that don't apply.
 
----
+**Why a relevance index + per-loop context packet?**
+Selective loading keeps each loop's context precise: the `project-index.md` map lets the loader pull only the skills + diagrams a task actually needs, instead of dumping all grounding. The context packet then carries the user-ask summary, done-so-far, and current task into every loop, so long, multi-task builds don't lose the thread.
 
-## Design Decisions
+**Why file-backed loop state?**
+A run can span many loops and outlive a single context window. Keeping the task list and done-so-far in `.claude/harness/state.md` means the loop survives compaction and restarts — the orchestrator resumes from the file instead of starting over or re-doing finished work.
 
-### Why Multiple Skills?
-
-Each skill has a single responsibility:
-- **analyzer**: Extract patterns
-- **context-loader**: Format context
-- **orchestrator**: Coordinate workflow
-- **verifier**: Validate output
-- **readme-generator**: Document
-
-Easier to test, extend, and maintain.
-
-### Why Verification Loop?
-
-Claude can hallucinate. By verifying immediately:
-- Errors caught early
-- Claude learns from feedback
-- No need for manual code review (mostly)
-- Confidence in shipped code
-
-### Why Mermaid Diagrams?
-
-Mermaid is:
-- Text-based (easy to version control)
-- Renderable in markdown (works in GitHub, etc.)
-- Readable by humans and LLMs
-- Light-weight (no binary images)
-
-### Why Hermes Skills?
-
-Hermes provides:
-- Persistent context storage (memory)
-- Skill registry & discovery
-- Integration with other tools
-- Easy distribution to teammates
+**Why a verification loop?**
+The model can hallucinate. Verifying immediately against real gates catches errors early, feeds concrete failures back into the next attempt, and keeps "done" honest — no "passing" claim without command output behind it.
 
 ---
 
-## Extensibility
+## Distribution
 
-### Adding a New Verifier Check
+- **Per project:** copy the `harness-*` skill folders into the project's `.claude/skills/`.
+- **Everywhere:** package the skills as a Claude Code plugin so they auto-load in every repo (see [SETUP.md](SETUP.md#install-as-a-plugin)).
 
-```python
-# harness-verifier/config/rules.yaml
-verifier:
-  checks:
-    - my_custom_check:
-        enabled: true
-        config: .my-check-config.yaml
-
-# harness-verifier/scripts/my_custom_check.py
-class MyCustomCheck(BaseCheck):
-    def run(self, code_path):
-        # Return CheckResult(passed=bool, errors=list)
-        pass
-```
-
-### Adding a New Context Source
-
-```python
-# harness-context-loader/scripts/loaders/my_loader.py
-class MyContextLoader(BaseLoader):
-    def load(self):
-        # Return context string
-        pass
-
-# harness-context-loader/SKILL.md
-context_sources:
-  - patterns
-  - architecture
-  - my_custom_source  # Added!
-```
+The generated `project-*` skills are committed alongside the project; the core `harness-*` skills come from the copy or plugin.
 
 ---
 
-## Performance Considerations
+## Extending
 
-### Analyzer Performance
-- **Problem**: Scanning large repos is slow
-- **Solution**: Exclude common folders (node_modules, dist, .git)
-- **Caching**: Store analysis results, invalidate on file changes
+**Add a domain skill.** Create a new skill folder (`skills/<domain>/SKILL.md` in this plugin, or a target project's `.claude/skills/<domain>/SKILL.md` for a one-off) using `templates/domain-skill.template`. Write it as direct instructions Claude follows — same Claude-native style as the four core skills — and reference the `project-*` grounding it should consult.
 
-### Context Size
-- **Problem**: Large context bloats Claude's context window
-- **Solution**: Limit `max_tokens`, auto-select relevant patterns
-- **Truncation**: Summarize if necessary
+**Add a verifier gate.** Edit `harness-verifier/SKILL.md` to discover and run the additional command (e.g. a security or accessibility check), reporting it alongside the existing gates with real output.
 
-### Parallel Limits
-- **Problem**: Too many parallel tasks → resource contention
-- **Solution**: Configurable `parallel_limit` (default: 2)
-- **Batching**: Execute in dependency-ordered batches
-
----
-
-## Future Enhancements
-
-- [ ] **Caching**: Cache analyzer results, invalidate on changes
-- [ ] **Incremental analysis**: Only re-scan changed files
-- [ ] **Web UI**: Dashboard for monitoring orchestrator runs
-- [ ] **Multi-project**: Orchestrate across repos
-- [ ] **Custom verifiers**: User-defined checks
-- [ ] **Learning**: Improve pattern extraction over time
-- [ ] **Integration**: GitHub Actions, GitLab CI, etc.
+**Add a generated grounding skill.** Edit `harness-analyzer/SKILL.md` to detect the new area and generate an extra `project-*` skill for it (plus any `diagrams/*.mmd` it should carry, and a row in `project-index.md`), and `harness-context-loader/SKILL.md` to pull it into the context packet when relevant.

@@ -1,0 +1,16 @@
+{
+  "name": "harness-marketplace",
+  "owner": {
+    "name": "chetan"
+  },
+  "metadata": {
+    "description": "Marketplace for the Harness Claude Skills plugin."
+  },
+  "plugins": [
+    {
+      "name": "harness",
+      "source": "./",
+      "description": "Harness Claude Skills — analyzer, context-loader, orchestrator, and verifier. Grounds Claude in your project's real patterns and drives a verified build loop. The analyzer generates project-specific grounding skills and wires CLAUDE.md so feature requests follow the harness flow."
+    }
+  ]
+}

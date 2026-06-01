@@ -4,11 +4,13 @@ This guide walks you through a complete feature implementation workflow for the 
 
 ## Phase 0: Planning & Analysis (5–10 min)
 
-### Read These Files First
-1. **`claude.md`** (in repo root) — Project overview + key files
-2. **`.claude/patterns-nextjs.md`** — Naming, imports, structure
-3. **`.claude/architecture.md`** — Component tree, request flow, stores
-4. **`.claude/design-tokens.md`** — Colors, spacing, responsive patterns
+### Read These First
+1. **`CLAUDE.md`** (repo root) — project overview + harness routing
+2. **`.claude/skills/project-patterns-nextjs/SKILL.md`** — naming, imports, structure
+3. **`.claude/skills/project-architecture/SKILL.md`** — component tree, request flow, stores
+4. **`.claude/skills/project-design-tokens/SKILL.md`** — colors, spacing, responsive patterns
+
+(These `project-*` skills auto-load; `harness-context-loader` distills the slice relevant to the task.)
 
 ### Clarify the Task
 - What is the **user-facing feature** (new button, form field, API endpoint)?
@@ -419,8 +421,8 @@ set({ isLoading: true });
 
 When feature is complete:
 
-1. **Update `.claude/architecture.md`** if new flows added
-2. **Update relevant skill file** if pattern changed
+1. **Update `.claude/skills/project-architecture/SKILL.md`** if new flows added
+2. **Update the relevant `project-*` skill** if a pattern changed
 3. **Add code comments** for non-obvious logic
 4. **Document N8N webhook changes** if applicable
 5. **Note any new env vars** required

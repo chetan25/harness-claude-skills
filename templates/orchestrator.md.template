@@ -1,0 +1,35 @@
+# Orchestration Notes for {PROJECT_NAME}
+
+<!--
+Optional per-project orchestration notes. The orchestration logic itself lives in the
+harness-orchestrator SKILL.md — this file only records project-specific choices it should
+honor. It is guidance for Claude, not config for a program. Delete what doesn't apply.
+-->
+
+## The loop (from harness-orchestrator)
+
+```
+Decompose the requirement into ordered, independently-verifiable tasks
+For each task:
+  ground  → harness-context-loader builds the brief + acceptance criteria
+  plan    → state the approach and files to touch
+  build   → implement, following project patterns
+  verify  → harness-verifier runs this project's real gates; fix on red
+  test    → add + run tests until green
+```
+
+## Project-specific choices
+
+- **Parallelism:** {e.g. "build independent tasks in parallel via subagents; keep DB-migration tasks serial".}
+- **Definition of done:** {e.g. "verifier green + tests passing + changelog updated".}
+- **Out of scope for auto-build:** {e.g. "never touch infra/ or secrets without asking".}
+
+## Quality gates
+
+Defer to the project's own commands (see CLAUDE.md). The verifier marks any gate the
+project doesn't define as "not configured" rather than inventing one.
+
+## Run log
+
+The orchestrator may append a short summary of each run to `.claude/harness-journal.md`
+(requirement, tasks completed, what was generated, what's still open) so work can resume later.
