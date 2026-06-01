@@ -1,0 +1,45 @@
+---
+name: harness-{domain-name}
+description: {One or two sentences describing WHEN to use this skill — the trigger. Be concrete: name the situations, file types, or user phrasings that should invoke it. This text is what makes Claude reach for the skill, so write it for matching, not marketing.}
+version: 1.0.0
+---
+
+# Harness {Domain Name}
+
+{One line: what Claude accomplishes when this skill runs. Remember — there is no external program. These are instructions Claude executes itself with Glob / Grep / Read / Write / Bash / Agent.}
+
+## When to run
+- {situation 1}
+- {situation 2}
+- {who calls it — e.g. invoked by harness-orchestrator during a task}
+
+## Procedure
+
+Write the steps as direct, imperative instructions Claude follows. Gather evidence with the real tools; do not invent facts the repo doesn't support.
+
+### 1. {First step}
+{e.g. "Glob for X and Read the relevant files to determine Y."}
+
+### 2. {Second step}
+{e.g. "Consult the generated project-* skills (under .claude/skills/) to decide Z."}
+
+### 3. {Output}
+{e.g. "Write the result to <path>, or report it back to the orchestrator." Keep outputs concise and grounded.}
+
+## Guardrails
+- {What this skill must NOT do — e.g. "don't loosen configs to force a green check".}
+- {Evidence rule, if it makes claims — e.g. "only report success after running the command and seeing its output".}
+
+## See also
+- harness-analyzer / harness-context-loader / harness-orchestrator / harness-verifier — as relevant
+- {related domain skills}
+
+---
+<!--
+Authoring notes (delete before shipping):
+- Folder name = skill invocation name: harness-{domain-name} (kebab-case). Match `name:` to it.
+- The body is instructions for Claude to DO, not docs for a tool to RUN.
+  No Python/JS "implementation", no CLI commands, no JSON I/O schemas.
+- Keep it tight and skimmable; progressive disclosure beats a wall of prose.
+- See the four core skills in ../skills/ for the house style.
+-->

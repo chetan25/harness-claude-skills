@@ -1,186 +1,174 @@
-# How to Consume Harness Claude Skills
+# Using Harness Claude Skills
 
-## The Workflow
+Harness is **four Claude Code skills** — `harness-analyzer`, `harness-context-loader`, `harness-orchestrator`, `harness-verifier`. There's no CLI and no separate program. Claude reads the `SKILL.md` files and acts. **Claude is the runtime.**
+
+## The flow
 
 ```
-User clones harness-claude-skills
+Copy the harness-* skills into your project's .claude/skills/   (or install the plugin)
         ↓
-Copies .claude/skills/ to their project
+Open the project in Claude Code
         ↓
-Opens Claude Code
+"Analyze this project"
+   → harness-analyzer GENERATES project-* grounding skills under .claude/skills/
+   → and wires CLAUDE.md so future requests follow the harness flow
         ↓
-Says: "Add a feature" (just ask naturally)
+"Add a feature."                 ← just ask normally; no "use the harness" needed
         ↓
-Claude reads claude.md → auto-invokes orchestrator
-        ↓
-Orchestrator runs:
-  1. Breaks feature into tasks
-  2. Loads context (your patterns, architecture)
-  3. Writes code (with your conventions)
-  4. Verifies (tests, lint, types)
-  5. Flags UI for manual check (if needed)
-  6. Compares with Figma (if available)
-  7. Ships when ready ✓
+CLAUDE.md + the generated skills route it through harness-orchestrator:
+  1. Decompose the feature into ordered tasks
+  2. Ground each task with a per-loop context packet   (harness-context-loader)
+       → pulls only the grounding skills + diagrams the task actually needs (selective)
+  3. Plan the approach against that packet
+  4. Build it following your real patterns
+  5. Verify with your project's own lint / type / format / test commands   (harness-verifier)
+  6. Add tests and iterate until green
 ```
+
+The first prompt sets up grounding. After that, the wired `CLAUDE.md` and the auto-loaded `project-*` skills mean **your next feature request just follows the flow** — you don't have to invoke anything by name.
 
 ---
 
-## What Users Don't Need to Do
+## What you don't have to do
 
-❌ Learn CLI commands  
-❌ Mention skills explicitly  
-❌ Configure anything  
-❌ Run build steps  
+❌ Learn or run any CLI (there is no `harness` command and no slash command)
+❌ Install a Python or JS package or runtime
+❌ Maintain a harness config by hand — the orchestrator keeps a small auto-managed run-state file (`.claude/harness/state.md`) for you; there's no config to edit
+❌ Say "use the harness" — once analyzed, `CLAUDE.md` routes feature requests for you
 
----
+## What you get
 
-## What Users Get Automatically
-
-✅ **Smart Code Generation** — Claude generates code that matches YOUR project  
-✅ **Verified Output** — Tests, linting, type-checking built-in  
-✅ **Design Validation** — Compares UI against Figma (if configured)  
-✅ **Feature Decomposition** — Large features break into manageable tasks  
-✅ **Iterative Refinement** — Loops if tests fail, until quality gates pass  
+✅ **Grounded generation** — code matches *your* project, not generic defaults
+✅ **Self-governing** — generated `project-*` skills auto-load; `CLAUDE.md` routes requests
+✅ **Real verification** — the verifier runs your actual scripts and shows the output
+✅ **Decomposition** — large features broken into independently verifiable tasks
+✅ **Honest iteration** — it loops on real failures and reports what's still red
 
 ---
 
-## Example: "Add Dark Mode"
+## Example: "Add dark mode"
 
-### User Says:
+After analysis, you say:
+
 ```
-"Add dark mode feature with persistence to localStorage"
+"Add dark mode with persistence to localStorage."
 ```
 
-### Orchestrator Does:
+`CLAUDE.md` routes it through `harness-orchestrator`:
+
 ```
 1. DECOMPOSE
-   ├─ Create theme context + provider
-   ├─ Add theme toggle button
-   ├─ Apply dark CSS classes
-   ├─ Persist to localStorage
-   └─ Write tests for each
+   ├─ theme context + provider
+   ├─ theme toggle
+   ├─ apply dark styles
+   ├─ persist to localStorage
+   └─ tests for each
 
-2. CONTEXT
-   ├─ Loads patterns-react.md (your React patterns)
-   ├─ Loads design-tokens.md (your colors)
-   ├─ Loads test-patterns.md (your test setup)
+2. GROUND  (per task, via harness-context-loader)
+   ├─ reads .claude/harness/state.md      (user-ask summary + done-so-far + current task)
+   ├─ reads project-index.md              (which skills/diagrams this task needs)
+   ├─ pulls only the relevant grounding   (e.g. project-design-tokens + diagrams/idiom-*.mmd for UI work)
+   └─ emits a compact per-loop context packet + acceptance-criteria checklist
 
-3. CODE
-   ├─ Creates ThemeContext.tsx (matches your patterns)
-   ├─ Creates ThemeToggle.tsx (uses your design tokens)
-   ├─ Updates main App.tsx
+3. BUILD
+   ├─ ThemeContext following your patterns
+   ├─ ThemeToggle using your design tokens
+   └─ wires it into the app
 
-4. VERIFY
-   ├─ Runs ESLint ✓
-   ├─ TypeScript check ✓
-   ├─ Tests pass ✓
-   ├─ Coverage threshold met ✓
+4. VERIFY  (harness-verifier)
+   ├─ runs your lint script
+   ├─ runs your type-check
+   ├─ runs your tests
+   ├─ checks naming / imports / file location against project-patterns-*
+   └─ checks the change respects the grounding diagrams (a `diagrams` gate)
 
-5. UI CHECK (if needed)
-   ├─ Flags: "Review UI in Figma"
-   ├─ User checks, confirms ✓
-
-6. SHIP
-   ├─ All tests pass
-   ├─ Code matches patterns
-   ├─ Docs updated
-   └─ Ready to commit
+5. DONE
+   └─ green gates + tests passing, reported with real command output
 ```
 
-### Claude Returns:
-- ✅ Dark mode fully working
-- ✅ All tests passing
-- ✅ Persistence working
-- ✅ Matches your design tokens
-- ✅ Follows your coding patterns
-- ✅ Ready to merge
+Every "passing" claim is backed by command output you can see.
 
 ---
 
-## Behind the Scenes
+## Behind the scenes
 
-### 1. `.claude/skills/` Are Your Codebook
+### `project-*` are generated *skills* that auto-load
 
-Each skill is a guide Claude uses:
-- `patterns-react.md` — Your React conventions
-- `architecture.md` — Project structure
-- `design-tokens.md` — Colors, spacing, fonts
-- `test-patterns.md` — How you test
+`harness-analyzer` writes real `SKILL.md` files into `.claude/skills/`, each with `name` + `description` frontmatter:
 
-Claude reads these **automatically** before writing code.
+- `project-patterns-{lang}/SKILL.md` — naming, imports, file organization; references standalone diagrams in `project-patterns-{lang}/diagrams/` (`layers.mmd`, plus zero-or-more `idiom-*.mmd`)
+- `project-architecture/SKILL.md` — module map; references standalone diagrams in `project-architecture/diagrams/` (`components.mmd`, `data-flow.mmd`)
+- `project-test-patterns/SKILL.md` — runner + test shape
+- `project-design-tokens/SKILL.md` — colors, spacing, typography (UI only)
+- `project-index.md` — a relevance map (area → which skills + diagrams to load for a task) that powers selective per-loop loading
 
-### 2. `claude.md` Is The Orchestrator Blueprint
+The analyzer writes Mermaid diagrams as standalone `.mmd` files under each grounding skill's `diagrams/` folder, and the `project-*` skills reference them by path rather than embedding the diagram inline.
 
-When user opens Claude Code in their project, Claude reads `claude.md` which says:
+Because they're proper skills, Claude **auto-loads them by description** in this project from then on. The analyzer also creates or updates the project's root `CLAUDE.md` so feature requests automatically route through `harness-orchestrator`.
 
-```markdown
-# For ANY feature request:
-1. Always use harness-orchestrator SKILL
-2. Load context from .claude/skills/
-3. Follow the 7-phase loop (decompose → context → code → verify → UI check → test → ship)
-4. Use Figma MCP if available
-```
+`harness-context-loader` reads `.claude/harness/state.md` + `project-index.md`, selects only the grounding skills + diagrams relevant to the current task, and emits a compact ephemeral packet — short user-ask summary, done-so-far, current task, exact context to use, and acceptance criteria — which is exactly what the verifier checks the result against.
 
-### 3. MCPs Extend Capabilities
+**Precise per-loop context.** The loader rebuilds that packet fresh on every loop (user-ask summary + done-so-far + current task + only the needed skills/diagrams via `project-index.md`), so context stays tight instead of dragging in everything. Because the orchestrator keeps its progress in `.claude/harness/state.md`, a long build is **resumable** across compaction and restarts.
 
-If user configured Figma MCP:
-- Claude can fetch design specs
-- Compare generated UI against design
-- Request changes if misaligned
+These are **normal committable project files** — commit them so your team shares the same grounding. (They are *not* gitignored.) The orchestrator keeps resumable run state in `.claude/harness/state.md`.
+
+### The verifier uses *your* commands
+
+It reads `package.json` scripts, `pyproject.toml`, `Makefile`, or CI config to find the real `lint` / `typecheck` / `format` / `test` commands and runs those. If a gate isn't configured in your project, it reports it as "not configured" instead of inventing one. It also adds a `diagrams` gate — confirming the change respects the diagrams it was grounded on (layering in `layers.mmd`, the canonical `data-flow.mmd`).
+
+### MCP is optional and standard
+
+To add design context, connect a Figma (or other) MCP server the normal Claude Code way via a project `.mcp.json`. The harness ships no MCP config of its own. With a Figma MCP connected, the verifier can compare generated UI against the design.
 
 ---
 
 ## FAQ
 
-### Q: Do I need to learn new commands?
-**A:** No. Just ask Claude naturally. The orchestrator handles everything.
+**Q: Do I need to learn new commands?**
+A: No. Ask Claude naturally. There's no CLI and no slash command. Once you've analyzed the project, `CLAUDE.md` routes feature requests for you.
 
-### Q: What if I have a legacy codebase?
-**A:** Run "Analyze this project" and Harness learns your patterns automatically.
+**Q: Is there a Python tool or CLI to install?**
+A: No. Harness is four `SKILL.md` files. Claude is the runtime — nothing to `pip install` or execute.
 
-### Q: Can I use this without `.claude/skills/`?
-**A:** Yes, but Claude won't have project context. It works best WITH skills.
+**Q: What if I have a legacy codebase?**
+A: Run "analyze this project" — the analyzer learns the patterns that actually exist and writes grounding skills from real code.
 
-### Q: What if my project has no tests?
-**A:** Harness generates tests as part of the orchestrator loop.
+**Q: Do I have to say "use the harness" every time?**
+A: No. The analyzer wires `CLAUDE.md`, so a normal feature request routes through the flow. (It's a soft, idiomatic instruction in `CLAUDE.md`, not a hard hook — you can always invoke a skill by name if you want.)
 
-### Q: Can I use this with non-React projects?
-**A:** Yes! Harness works with any tech. Skills adapt to your stack (Python, Node, Go, etc.).
+**Q: Non-React projects?**
+A: Supported. The skills detect the stack from real manifests (`package.json`, `pyproject.toml`, `go.mod`, …) and use the project's own scripts. `project-design-tokens` is generated only for UI projects.
 
-### Q: What about Figma integration?
-**A:** If you configure Figma MCP in `.claude/mcp-config.yaml`, Claude can fetch designs and validate UI.
+**Q: How do I refresh after a refactor?**
+A: "Re-analyze this project" — the analyzer regenerates the `project-*` skills and merges `CLAUDE.md`.
 
-### Q: How do I add custom MCPs?
-**A:** Edit `.claude/mcp-config.yaml` and add your MCP server configs. Claude will use them.
+**Q: Can I resume a long build if it gets interrupted?**
+A: Yes. The orchestrator tracks the user ask, the task list with status, and a done-so-far log in `.claude/harness/state.md`, so it can pick up where it left off after a compaction or restart.
 
-### Q: Is this only for Claude Code?
-**A:** Phase 0 targets Claude Code. Future phases may support other IDEs.
+**Q: How do I get the skills in all my repos?**
+A: Install them as a plugin instead of copying per project (see [SETUP.md](SETUP.md#install-as-a-plugin)). Then they auto-load everywhere.
 
 ---
 
 ## Troubleshooting
 
-### Claude doesn't use the skills
-- **Check:** `claude.md` exists at project root
-- **Check:** `.claude/skills/` folder exists
-- **Check:** Skills have readable .md files
+**Claude doesn't trigger the skills**
+- Confirm `.claude/skills/harness-*/SKILL.md` exist (or the plugin is installed).
+- Invoke one explicitly by name (e.g. "use harness-analyzer").
 
-### Tests fail after generation
-- Orchestrator re-runs, fixes issues, retries
-- Check `.claude/orchestrator.md` for failure details
+**Generated code doesn't match your style**
+- Grounding is likely stale — "re-analyze this project", or edit the relevant `.claude/skills/project-patterns-*/SKILL.md` directly.
 
-### Code doesn't match my style
-- Run "Analyze this project" to refresh patterns
-- Update `.claude/skills/patterns-*.md` manually if needed
+**Feature requests aren't following the flow**
+- Make sure the analyzer ran and `CLAUDE.md` exists at the project root with the harness routing. Re-run "analyze this project" if it's missing.
 
-### Claude mentions skills explicitly
-- That's okay! It means skills are loaded
-- User doesn't need to mention them though
+**Tests fail after generation**
+- The orchestrator loops on real failures. If it stays red, it switches to deliberate debugging and surfaces the blocker rather than forcing a broken result.
 
 ---
 
-## Next Steps
+## Next steps
 
-1. **Clone & copy:** See QUICKSTART.md
-2. **Detailed setup:** See SETUP.md
-3. **Advanced:** See ARCHITECTURE.md for how it works
+- [QUICKSTART.md](QUICKSTART.md) — fastest path
+- [SETUP.md](SETUP.md) — per-project and plugin install
+- [ARCHITECTURE.md](ARCHITECTURE.md) — how the four skills fit together

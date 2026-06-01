@@ -1,0 +1,18 @@
+{
+  "name": "harness",
+  "version": "3.0.0",
+  "description": "Ground Claude Code in your project's real patterns, then build features through a verified loop. harness-analyzer generates project-specific grounding skills and wires CLAUDE.md so feature requests follow the harness flow (decompose -> ground -> build -> verify -> test). All Claude-native skills; no CLI.",
+  "author": {
+    "name": "chetan"
+  },
+  "repository": "https://github.com/chetan25/harness-claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "harness",
+    "grounding",
+    "orchestration",
+    "code-generation",
+    "verification",
+    "skills"
+  ]
+}
