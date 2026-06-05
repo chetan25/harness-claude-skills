@@ -76,7 +76,7 @@ When verify + test both pass, update `.claude/harness/state.md`: set the task to
   ```
   Agent({
     prompt: "<self-contained task brief>",
-    model: "haiku" | "sonnet" | "opus"   ← from harness-model-router routing table
+    model: "haiku",  // or "sonnet" / "opus" — tier from harness-model-router routing table
   })
   ```
 
