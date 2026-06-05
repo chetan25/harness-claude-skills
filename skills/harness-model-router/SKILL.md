@@ -21,7 +21,7 @@ Take the list of parallel task descriptions from `harness-orchestrator`. Each en
 
 Apply both signals in order. Keywords can only **upgrade** a tier, never downgrade.
 
-#### Step 1 — Task type (primary signal)
+#### Signal 1 — Task type (primary signal)
 
 | Task type | Tier |
 |---|---|
@@ -32,7 +32,7 @@ Apply both signals in order. Keywords can only **upgrade** a tier, never downgra
 | Cross-cutting reasoning (debug across layers, investigate) | opus |
 | Architecture / design / migration | opus |
 
-#### Step 2 — Keyword scan (confirms or upgrades)
+#### Signal 2 — Keyword scan (confirms or upgrades)
 
 | Keywords present | Tier signal |
 |---|---|
@@ -51,11 +51,13 @@ Apply both signals in order. Keywords can only **upgrade** a tier, never downgra
 Output the table in context (do **not** write to a file — it is ephemeral per dispatch):
 
 ```
-ROUTING TABLE
+ROUTING TABLE — <run identifier>
   [1] "<task description>"   → haiku
   [2] "<task description>"   → sonnet
   [3] "<task description>"   → opus
 ```
+
+The run identifier is a short label (e.g. the batch name or a sequential counter) so multiple routing calls in the same session are distinguishable.
 
 `harness-orchestrator` reads this table and passes `model: "<tier>"` to each `Agent` call.
 
