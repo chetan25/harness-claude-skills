@@ -71,7 +71,14 @@ When verify + test both pass, update `.claude/harness/state.md`: set the task to
 
 ### 5. Parallel vs serial
 - **Serial** when tasks share state or depend on each other (the common case).
-- **Parallel** only for genuinely independent tasks. To run independent tasks concurrently, dispatch subagents with the `Agent` tool (see the `superpowers:dispatching-parallel-agents` skill). Give each a self-contained brief and use worktree isolation if they touch overlapping files.
+- **Parallel** only for genuinely independent tasks. Before dispatching, invoke **`harness-model-router`** with the parallel task list to get a routing table (task → model tier). Then dispatch subagents with the `Agent` tool (see the `superpowers:dispatching-parallel-agents` skill), passing `model: "<tier>"` from the routing table for each task. Give each a self-contained brief and use worktree isolation if they touch overlapping files.
+
+  ```
+  Agent({
+    prompt: "<self-contained task brief>",
+    model: "haiku" | "sonnet" | "opus"   ← from harness-model-router routing table
+  })
+  ```
 
 ### 6. Recover from failures
 If a task can't pass verification after a couple of focused attempts, stop and debug deliberately (`superpowers:systematic-debugging`) rather than thrashing. Surface the blocker to the user instead of forcing a broken result.
